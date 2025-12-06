@@ -6,7 +6,7 @@ from .models import User
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
 
-    # ✅ List view
+    # LIST VIEW
     list_display = (
         "username",
         "first_name",
@@ -14,28 +14,39 @@ class CustomUserAdmin(UserAdmin):
         "email",
         "user_type",
         "user_id",
+        "gender",
+        "phone",
         "is_superuser",
         "is_staff",
         "is_active",
     )
 
-    search_fields = ("username", "email", "user_id", "first_name", "last_name")
+    search_fields = ("username", "email", "user_id", "first_name", "last_name", "phone")
     ordering = ("id",)
 
-    # ✅ Make user_id readonly
     readonly_fields = ("user_id",)
 
-    # ✅ Edit page (Change User)
+    # EDIT PAGE (Change User)
     fieldsets = UserAdmin.fieldsets + (
-        ("Extra Info", {
-            "fields": ("user_type", "user_id"),
+        ("Extra Information", {
+            "fields": ("user_type", "user_id", "gender", "phone", "address", "profile_pic"),
         }),
     )
 
-    # ✅ Add page (Create User)
+    # ADD PAGE (Create User)
     add_fieldsets = (
         (None, {
             "classes": ("wide",),
-            "fields": ("username", "email", "password1", "password2", "user_type"),
+            "fields": (
+                "username",
+                "email",
+                "password1",
+                "password2",
+                "user_type",
+                "gender",
+                "phone",
+                "address",
+                "profile_pic",
+            ),
         }),
     )

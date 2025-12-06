@@ -11,6 +11,12 @@ class User(AbstractUser):
         ('Student', 'Student'),
     ]
 
+    GENDER_CHOICES = [
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Other', 'Other'),
+    ]
+
     user_type = models.CharField(
         max_length=20,
         choices=USER_TYPE_CHOICE,
@@ -25,6 +31,31 @@ class User(AbstractUser):
         db_index=True,
         blank=True,
         null=True,
+    )
+
+    profile_pic = models.ImageField(
+        upload_to='profile_pics/',
+        blank=True,
+        null=True,
+    )
+
+
+    gender = models.CharField(
+        max_length=10,
+        choices=GENDER_CHOICES,
+        null=True,
+        blank=True,
+    )
+
+    phone = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+    )
+
+    address = models.TextField(
+        null=True,
+        blank=True,
     )
 
     def save(self, *args, **kwargs):

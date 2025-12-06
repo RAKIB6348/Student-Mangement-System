@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+form {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+
+label {display: block;}
+
+input[type=text], input[type=email], input[type=tel], select, textarea, input[type=file] {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type=submit] {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+</style>
+
+
+<form action="" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <!-- ⭐ PROFILE PICTURE FIRST -->
+  {% if user.profile_pic %}
+    <img src="{{ user.profile_pic.url }}" width="120" style="border-radius: 10px;">
+{% else %}
+    <img src="{% static 'img/default_image.png' %}" width="120" style="border-radius: 10px;">
+{% endif %}
+
+
+  <!-- USER ID (read only) -->
+  <label for="userid">User ID</label>
+  <input type="text" id="userid" name="user_id"
+         value="{{ user.user_id }}" readonly>
+
+  <!-- ⭐ NAME FIELDS -->
+  <label for="fname">First Name</label>
+  <input type="text" id="fname" name="first_name"
+         value="{{ user.first_name }}" placeholder="Enter first name" readonly>
+
+  <label for="lname">Last Name</label>
+  <input type="text" id="lname" name="last_name"
+         value="{{ user.last_name }}" placeholder="Enter last name" readonly>
+
+  <!-- GENDER -->
+  <label for="gender">Gender</label>
+<select id="gender" name="gender" style="pointer-events:none; background:#e9ecef;">
+    <option value="{{ user.gender }}" selected>{{ user.gender }}</option>
+</select>
+
+
+
+  <!-- PHONE -->
+  <label for="phone">Phone</label>
+  <input type="tel" id="phone" name="phone"
+         value="{{ user.phone }}" placeholder="Enter phone number" readonly>
+
+  <!-- EMAIL -->
+  <label for="email">Email</label>
+  <input type="email" id="email" name="email"
+         value="{{ user.email }}" placeholder="Enter email" readonly>
+
+
+  <!-- ADDRESS -->
+  <label for="address">Address</label>
+  <textarea id="address" name="address" rows="4"
+            placeholder="Enter address">{{ user.address }}</textarea>
+
+  <input type="submit" value="Update Profile">
+</form>
+
+{% endblock content %}
