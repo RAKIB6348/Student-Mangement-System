@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib import messages
 from django.http import HttpResponse
 
+
+
 User = get_user_model()
 
 #======================= dashboard page ==================
@@ -41,7 +43,7 @@ def user_login(request):
 
         # ===== Redirect based on user_type =====
         if user.user_type == 'Admin':
-            return HttpResponse("This is a Admin page")
+            return redirect("admin_home_page")
         elif user.user_type == 'Teacher':
             return HttpResponse("This is a Teacher Panel")
         elif user.user_type == 'Student':
