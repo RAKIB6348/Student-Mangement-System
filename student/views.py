@@ -1,4 +1,5 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render
+from django.http import HttpResponse
 
 # Create your views here.
 def student_list(request):
@@ -9,4 +10,4 @@ def student_list(request):
 
 def student_create(request):
 
-    return HttpResponse("This is a student create page")
+    return render(request, 'Student/add_student.html')
