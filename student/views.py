@@ -11,3 +11,9 @@ def student_list(request):
 def student_create(request):
 
     return render(request, 'Student/add_student.html')
+
+
+
+def student_dashboard(request):
+
+    return render(request, 'Student/student_dashboard.html')
