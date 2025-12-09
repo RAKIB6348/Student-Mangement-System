@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .teacher-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #f0f4ff;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+    }
+    .table thead th {
+        border-bottom-width: 1px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    .teacher-table-card {
+        border: 0;
+        border-radius: 1rem;
+    }
+</style>
+
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title mb-2">Teachers</h3>
+                <ul class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_home_page' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Teacher List</li>
+                </ul>
+            </div>
+            <div class="col-auto mt-3 mt-md-0">
+                <a href="#" class="btn btn-primary">
+                    <i class="fas fa-user-plus mr-2"></i>Add New Teacher
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm teacher-table-card">
+        <div class="card-header bg-white border-0 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between">
+            <div>
+                <h5 class="mb-1">Teacher Directory</h5>
+                <p class="mb-0 text-muted">Total Teachers: {{ teachers|length }}</p>
+            </div>
+            <form class="form-inline mt-3 mt-md-0">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Quick search (UI only)">
+                </div>
+            </form>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Photo</th>
+                        <th scope="col">Teacher ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Gender</th>
+                        <th scope="col">Date of Birth</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Designation</th>
+                        <th scope="col">Joining Date</th>
+                        <th scope="col">Qualification</th>
+                        <th scope="col">Experience</th>
+                        <th scope="col">Present Address</th>
+                        <th scope="col">Permanent Address</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for teacher in teachers %}
+                        <tr>
+                            <td>
+                                {% if teacher.profile_pic %}
+                                    <img src="{{ teacher.profile_pic.url }}" alt="{{ teacher.first_name }} {{ teacher.last_name }}" class="teacher-avatar">
+                                {% else %}
+                                    <img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" alt="avatar" class="teacher-avatar">
+                                {% endif %}
+                            </td>
+                            <td>{{ teacher.teacher_user_id|default:"—" }}</td>
+                            <td>{{ teacher.first_name|default:"—" }} {{ teacher.last_name|default:"" }}</td>
+                            <td>{{ teacher.gender|default:"—" }}</td>
+                            <td>{{ teacher.date_of_birth|date:"Y-m-d"|default:"—" }}</td>
+                            <td>{{ teacher.phone|default:"—" }}</td>
+                            <td>{{ teacher.email|default:"—" }}</td>
+                            <td>{{ teacher.designation|default:"—" }}</td>
+                            <td>{{ teacher.joining_date|date:"Y-m-d"|default:"—" }}</td>
+                            <td>{{ teacher.qualification|default:"—" }}</td>
+                            <td>{{ teacher.experience|default:"—" }}</td>
+                            <td>{{ teacher.present_address|default:"—"|truncatewords:5 }}</td>
+                            <td>{{ teacher.permanent_address|default:"—"|truncatewords:5 }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="#" class="btn btn-sm btn-info" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="14" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-chalkboard-teacher fa-2x mb-3 d-block"></i>
+                                    No teachers found yet. Use the "Add New Teacher" button to add one.
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

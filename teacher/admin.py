@@ -28,9 +28,6 @@ class TeacherInfoAdmin(admin.ModelAdmin):
         'email',
         'phone',
         'designation',
-        'city',
-        'state',
-        'country',
     )
 
     ordering = ('id',)
@@ -46,7 +43,7 @@ class TeacherInfoAdmin(admin.ModelAdmin):
             'fields': ('designation', 'joining_date', 'qualification', 'experience')
         }),
         ("Address Information", {
-            'fields': ('address', 'city', 'state', 'zip_code', 'country')
+            'fields': ('present_address', 'permanent_address')
         }),
         ("Timestamps", {
             'fields': ('created_at',)

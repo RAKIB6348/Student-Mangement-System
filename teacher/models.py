@@ -41,11 +41,8 @@ class TeacherInfo(models.Model):
     experience = models.CharField(max_length=100, blank=True, null=True)
 
     # -------- Address Information -------- #
-    address     = models.TextField(blank=True, null=True)
-    city        = models.CharField(max_length=100, blank=True, null=True)
-    state       = models.CharField(max_length=100, blank=True, null=True)
-    zip_code    = models.CharField(max_length=20, blank=True, null=True)
-    country     = models.CharField(max_length=100, blank=True, null=True)
+    present_address  = models.TextField(blank=True, null=True)
+    permanent_address = models.TextField(blank=True, null=True)
 
     # -------- Others -------- #
     profile_pic = models.ImageField(upload_to='teachers/', blank=True, null=True)
