@@ -109,9 +109,15 @@ class StudentInfo(models.Model):
     guardian_relation = models.CharField(max_length=50, blank=True, null=True)
     guardian_address  = models.TextField(blank=True, null=True)
     
-    # ---------------- Address & Misc ---------------- #
+    # -------- Address Information -------- #
     present_address  = models.TextField(blank=True, null=True)
     permanent_address = models.TextField(blank=True, null=True)
+    city        = models.CharField(max_length=100, blank=True, null=True)
+    state       = models.CharField(max_length=100, blank=True, null=True)
+    zip_code    = models.CharField(max_length=20, blank=True, null=True)
+    country     = models.CharField(max_length=100, blank=True, null=True)
+
+    # ---------------- Profile Picture ---------------- #
     profile_pic = models.ImageField(upload_to="students/", blank=True, null=True)
     
     # ---------------- Timestamps ---------------- #

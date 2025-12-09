@@ -29,6 +29,9 @@ class StudentInfoAdmin(admin.ModelAdmin):
         "guardian_phone",
         "user__username",
         "user__email",
+        "city",
+        "state",
+        "country",
     )
     
     readonly_fields = (
@@ -70,7 +73,7 @@ class StudentInfoAdmin(admin.ModelAdmin):
                        "guardian_relation", "guardian_address")
         }),
         ("Address", {
-            "fields": ("present_address", "permanent_address")
+            "fields": ("present_address", "permanent_address", "city", "state", "zip_code", "country")
         }),
         ("Timestamps", {
             "fields": ("created_at", "updated_at")
