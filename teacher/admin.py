@@ -11,11 +11,12 @@ class TeacherInfoAdmin(admin.ModelAdmin):
         'user',
         'first_name',
         'last_name',
+        'gender',
         'phone',
         'email',
         'designation',
         'joining_date',
-        'created_at',     # 👈 newly added column
+        'created_at',
     )
 
 
@@ -26,6 +27,10 @@ class TeacherInfoAdmin(admin.ModelAdmin):
         'last_name',
         'email',
         'phone',
+        'designation',
+        'city',
+        'state',
+        'country',
     )
 
     ordering = ('id',)
@@ -35,13 +40,13 @@ class TeacherInfoAdmin(admin.ModelAdmin):
             'fields': ('user', 'teacher_user_id')
         }),
         ("Personal Information", {
-            'fields': ('first_name', 'last_name', 'gender', 'email', 'phone')
+            'fields': ('first_name', 'last_name', 'gender', 'date_of_birth', 'email', 'phone', 'profile_pic')
         }),
         ("Job Information", {
-            'fields': ('designation', 'joining_date')
+            'fields': ('designation', 'joining_date', 'qualification', 'experience')
         }),
-        ("Address & Photo", {
-            'fields': ('address', 'profile_pic')
+        ("Address Information", {
+            'fields': ('address', 'city', 'state', 'zip_code', 'country')
         }),
         ("Timestamps", {
             'fields': ('created_at',)

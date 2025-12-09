@@ -30,15 +30,24 @@ class TeacherInfo(models.Model):
     first_name = models.CharField(max_length=50, blank=True, null=True)
     last_name  = models.CharField(max_length=50, blank=True, null=True)
     gender     = models.CharField(max_length=10, choices=GENDER, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
     phone      = models.CharField(max_length=15, blank=True, null=True)
     email      = models.EmailField(blank=True, null=True)
 
     # -------- Job Related Info -------- #
     designation  = models.CharField(max_length=100, blank=True, null=True)
     joining_date = models.DateField(blank=True, null=True)
+    qualification = models.CharField(max_length=200, blank=True, null=True)
+    experience = models.CharField(max_length=100, blank=True, null=True)
+
+    # -------- Address Information -------- #
+    address     = models.TextField(blank=True, null=True)
+    city        = models.CharField(max_length=100, blank=True, null=True)
+    state       = models.CharField(max_length=100, blank=True, null=True)
+    zip_code    = models.CharField(max_length=20, blank=True, null=True)
+    country     = models.CharField(max_length=100, blank=True, null=True)
 
     # -------- Others -------- #
-    address     = models.TextField(blank=True, null=True)
     profile_pic = models.ImageField(upload_to='teachers/', blank=True, null=True)
 
     # -------- Auto Timestamp -------- #
