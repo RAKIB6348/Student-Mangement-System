@@ -11,3 +11,9 @@ def teacher_list(request):
 def add_teacher(request):
 
     return render(request, 'Teacher/add_teacher.html')
+
+
+
+def teacher_dashboard(request):
+    
+    return render(request, "Teacher/teacher_dashboard.html")

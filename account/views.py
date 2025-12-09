@@ -47,9 +47,9 @@ def user_login(request):
         if user.user_type == 'Admin':
             return redirect("admin_home_page")
         elif user.user_type == 'Teacher':
-            return HttpResponse("This is a Teacher Panel")
+            return redirect('teacher_dashboard')
         elif user.user_type == 'Student':
-            return HttpResponse("This is a Student Panel")
+            return redirect('student_dashboard')
 
         messages.error(request, "Invalid User ID or Password.")
         return redirect('login_page')
