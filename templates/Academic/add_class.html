@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Add Class</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Academic</a></li>
+                    <li class="breadcrumb-item"><a href="#">Classes</a></li>
+                    <li class="breadcrumb-item active">Add Class</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="row">
+
+                            <div class="col-12">
+                                <h5 class="form-title"><span>Class Information</span></h5>
+                            </div>
+
+                            <!-- Class Name -->
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>Class Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="name" class="form-control" placeholder="e.g. Class 1, Grade 10" required>
+                                </div>
+                            </div>
+
+                            <!-- Class Code -->
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>Class Code <span class="text-danger">*</span></label>
+                                    <input type="number" name="class_code" class="form-control" placeholder="e.g. 1, 10" min="1" max="99" required>
+                                    <small class="form-text text-muted">Enter a number between 1-99</small>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <a href="#" class="btn btn-secondary">Cancel</a>
+                            </div>
+
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

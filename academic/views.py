@@ -1,6 +1,25 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render
 
 # Create your views here.
 def add_subject(request):
 
-    return HttpResponse("This is a subject page")
+    return render(request, 'Academic/add_subject.html')
+
+
+
+
+def add_section(request):
+
+    return render(request, 'Academic/add_section.html')
+
+
+
+def add_session(request):
+
+    return render(request, 'Academic/add_session.html')
+
+
+
+
+def add_class(request):
+    return render(request, 'Academic/add_class.html')

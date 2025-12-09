@@ -21,6 +21,11 @@ class StudentInfoAdmin(admin.ModelAdmin):
         "first_name",
         "last_name",
         "phone",
+        "father_name",
+        "mother_name",
+        "father_mobile",
+        "mother_mobile",
+        "guardian_name",
         "guardian_phone",
         "user__username",
         "user__email",
@@ -46,7 +51,19 @@ class StudentInfoAdmin(admin.ModelAdmin):
         }),
         ("Personal Info", {
             "fields": ("first_name", "last_name", "gender", "date_of_birth",
-                       "blood_group", "phone", "email", "profile_pic")
+                       "blood_group", "religion", "joining_date", "phone", "email", "profile_pic")
+        }),
+        ("Parent Info", {
+            "fields": (
+                "father_name",
+                "father_occupation",
+                "father_mobile",
+                "father_email",
+                "mother_name",
+                "mother_occupation",
+                "mother_mobile",
+                "mother_email",
+            )
         }),
         ("Guardian Info", {
             "fields": ("guardian_name", "guardian_phone", "guardian_email",

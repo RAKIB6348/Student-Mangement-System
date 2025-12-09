@@ -87,9 +87,21 @@ class StudentInfo(models.Model):
         blank=True,
         null=True,
     )
+    religion   = models.CharField(max_length=50, blank=True, null=True)
+    joining_date = models.DateField(blank=True, null=True)
     phone      = models.CharField(max_length=15, blank=True, null=True)
     email      = models.EmailField(blank=True, null=True)
-    
+
+    # ---------------- Parent Info ---------------- #
+    father_name = models.CharField(max_length=100, blank=True, null=True)
+    father_occupation = models.CharField(max_length=100, blank=True, null=True)
+    father_mobile = models.CharField(max_length=15, blank=True, null=True)
+    father_email = models.EmailField(blank=True, null=True)
+    mother_name = models.CharField(max_length=100, blank=True, null=True)
+    mother_occupation = models.CharField(max_length=100, blank=True, null=True)
+    mother_mobile = models.CharField(max_length=15, blank=True, null=True)
+    mother_email = models.EmailField(blank=True, null=True)
+
     # ---------------- Guardian Info ---------------- #
     guardian_name   = models.CharField(max_length=100, blank=True, null=True)
     guardian_phone  = models.CharField(max_length=15, blank=True, null=True)
