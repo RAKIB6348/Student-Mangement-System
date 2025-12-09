@@ -22,27 +22,23 @@
                 <li class="submenu">
                     <a href="#"><i class="fas fa-user-graduate"></i> <span> Students</span> <span class="menu-arrow"></span></a>
                     <ul>
-                        <li><a href="#">Student List</a></li>
-                        <li><a href="#">Student View</a></li>
                         <li><a href="{% url 'student_create' %}">Add Student</a></li>
-                        <li><a href="#">Student Edit</a></li>
+                        <li><a href="#">Student View</a></li>
                     </ul>
                 </li>
                 <li class="submenu">
                     <a href="#"><i class="fas fa-chalkboard-teacher"></i> <span> Teachers</span> <span class="menu-arrow"></span></a>
                     <ul>
-                        <li><a href="#">Teacher List</a></li>
-                        <li><a href="#">Teacher View</a></li>
                         <li><a href="{% url 'add_teacher' %}">Add Teacher</a></li>
-                        <li><a href="#">Teacher Edit</a></li>
+                        <li><a href="#">View Teacher</a></li>
+                        
                     </ul>
                 </li>
                 <li class="submenu">
                     <a href="#"><i class="fas fa-book-reader"></i> <span> Subjects</span> <span class="menu-arrow"></span></a>
                     <ul>
-                        <li><a href="{% url 'add_subject' %}">Subject Add</a></li>
-                        <li><a href="{% url 'subject_list' %}">Subject List</a></li>
-                        <li><a href="#">Subject Edit</a></li>
+                        <li><a href="{% url 'add_subject' %}">Add Subject</a></li>
+                        <li><a href="{% url 'subject_list' %}">View Subject</a></li>
                     </ul>
                 </li>
                 <li class="submenu">
