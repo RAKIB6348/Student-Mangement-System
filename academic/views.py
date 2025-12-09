@@ -1,10 +1,20 @@
 from django.shortcuts import render
 
 # Create your views here.
+def subject_list(request):
+    
+    return render(request, 'Academic/subject/subject_list.html')
+
+
 def add_subject(request):
 
-    return render(request, 'Academic/add_subject.html')
+    return render(request, 'Academic/subject/add_subject.html')
 
+
+def edit_subject(request):
+    
+    
+    return render(request, 'Academic/subject/edit_subject.html')
 
 
 
