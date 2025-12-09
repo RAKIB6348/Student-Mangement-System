@@ -1,11 +1,17 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from .models import StudentInfo
 
 # Create your views here.
 def student_list(request):
 
-    return HttpResponse("This is a student list page")
+    students = StudentInfo.objects.all()
+
+    context = {
+        "students": students,
+    }
+
+    return render(request, "Student/student_list.html", context)
 
 
 

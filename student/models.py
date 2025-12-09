@@ -102,20 +102,9 @@ class StudentInfo(models.Model):
     mother_mobile = models.CharField(max_length=15, blank=True, null=True)
     mother_email = models.EmailField(blank=True, null=True)
 
-    # ---------------- Guardian Info ---------------- #
-    guardian_name   = models.CharField(max_length=100, blank=True, null=True)
-    guardian_phone  = models.CharField(max_length=15, blank=True, null=True)
-    guardian_email  = models.EmailField(blank=True, null=True)
-    guardian_relation = models.CharField(max_length=50, blank=True, null=True)
-    guardian_address  = models.TextField(blank=True, null=True)
-    
     # -------- Address Information -------- #
     present_address  = models.TextField(blank=True, null=True)
     permanent_address = models.TextField(blank=True, null=True)
-    city        = models.CharField(max_length=100, blank=True, null=True)
-    state       = models.CharField(max_length=100, blank=True, null=True)
-    zip_code    = models.CharField(max_length=20, blank=True, null=True)
-    country     = models.CharField(max_length=100, blank=True, null=True)
 
     # ---------------- Profile Picture ---------------- #
     profile_pic = models.ImageField(upload_to="students/", blank=True, null=True)
