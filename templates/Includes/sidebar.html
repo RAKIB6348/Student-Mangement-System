@@ -13,49 +13,62 @@
                 <li class="submenu">
                     <a href="#"><i class="fas fa-users-cog"></i> <span>User Management</span> <span class="menu-arrow"></span></a>
                     <ul>
-                        <li><a href="{% url 'register_admin' %}">Add User</a></li>
-                        <li><a href="#">User List</a></li>
-                        
+                        <li><a href="{% url 'register_admin' %}"><i class="fas fa-user-plus"></i> Add User</a></li>
+                        <li><a href="#"><i class="fas fa-list-ul"></i> User List</a></li>
+
                     </ul>
                 </li>
 
                 <li class="submenu">
                     <a href="#"><i class="fas fa-user-graduate"></i> <span> Students</span> <span class="menu-arrow"></span></a>
                     <ul>
-                        <li><a href="{% url 'student_create' %}">Add Student</a></li>
-                        <li><a href="{% url 'student_list' %}">Student View</a></li>
+                        <li><a href="{% url 'student_create' %}"><i class="fas fa-user-plus"></i> Add Student</a></li>
+                        <li><a href="{% url 'student_list' %}"><i class="fas fa-list-ul"></i> Student View</a></li>
                     </ul>
                 </li>
                 <li class="submenu">
                     <a href="#"><i class="fas fa-chalkboard-teacher"></i> <span> Teachers</span> <span class="menu-arrow"></span></a>
                     <ul>
-                        <li><a href="{% url 'add_teacher' %}">Add Teacher</a></li>
-                        <li><a href="{% url 'teacher_list' %}">View Teacher</a></li>
-                        
+                        <li><a href="{% url 'add_teacher' %}"><i class="fas fa-user-plus"></i> Add Teacher</a></li>
+                        <li><a href="{% url 'teacher_list' %}"><i class="fas fa-list-ul"></i> View Teacher</a></li>
+
                     </ul>
                 </li>
+                 <li class="menu-title">
+                        <span>Academics</span>
+                     </li>
                 <li class="submenu">
                     <a href="#"><i class="fas fa-book-reader"></i> <span> Subjects</span> <span class="menu-arrow"></span></a>
                     <ul>
-                        <li><a href="{% url 'add_subject' %}">Add Subject</a></li>
-                        <li><a href="{% url 'subject_list' %}">View Subject</a></li>
+                        <li><a href="{% url 'add_subject' %}"><i class="fas fa-plus-circle"></i> Add Subject</a></li>
+                        <li><a href="{% url 'subject_list' %}"><i class="fas fa-list-ul"></i> View Subject</a></li>
                     </ul>
                 </li>
 
                 <li class="submenu">
                     <a href="#"><i class="fas fa-book-reader"></i> <span> Classes</span> <span class="menu-arrow"></span></a>
                     <ul>
-                        <li><a href="{% url 'add_class' %}">Add Class</a></li>
-                        <li><a href="{% url 'class_list' %}">View Class</a></li>
+                        <li><a href="{% url 'add_class' %}"><i class="fas fa-plus-circle"></i> Add Class</a></li>
+                        <li><a href="{% url 'class_list' %}"><i class="fas fa-list-ul"></i> View Class</a></li>
                     </ul>
                 </li>
+
                 <li class="submenu">
-                    <a href="#"><i class="fas fa-layer-group"></i> <span> Academics</span> <span class="menu-arrow"></span></a>
+                    <a href="#"><i class="fas fa-book-reader"></i> <span> Sections</span> <span class="menu-arrow"></span></a>
                     <ul>
-                        <li><a href="{% url 'add_session' %}">Sessions</a></li>
-                        <li><a href="{% url 'add_section' %}">Sections</a></li>
+                        <li><a href="{% url 'add_section' %}"><i class="fas fa-plus-circle"></i> Add Section</a></li>
+                        <li><a href="#"><i class="fas fa-list-ul"></i> View Section</a></li>
                     </ul>
                 </li>
+
+                <li class="submenu">
+                    <a href="#"><i class="fas fa-book-reader"></i> <span> Sessions</span> <span class="menu-arrow"></span></a>
+                    <ul>
+                        <li><a href="{% url 'add_session' %}"><i class="fas fa-plus-circle"></i> Add Session</a></li>
+                        <li><a href="#"><i class="fas fa-list-ul"></i> View Session</a></li>
+                    </ul>
+                </li>
+
                 <li>
                     <a href="#"><i class="fas fa-calendar-check"></i> <span>View Attendance</span></a>
                 </li>
