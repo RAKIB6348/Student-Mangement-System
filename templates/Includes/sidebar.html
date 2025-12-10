@@ -10,8 +10,12 @@
                 <li class="active">
                     <a href="{% url 'admin_home_page' %}"><i class="fas fa-user-graduate"></i> <span> Dashboard</span></a>
                 </li>
+
+                <li class="menu-title">
+                    <span>User Management</span>
+                </li>
                 <li class="submenu">
-                    <a href="#"><i class="fas fa-users-cog"></i> <span>User Management</span> <span class="menu-arrow"></span></a>
+                    <a href="#"><i class="fas fa-users-cog"></i> <span>Manage Users</span> <span class="menu-arrow"></span></a>
                     <ul>
                         <li><a href="{% url 'register_admin' %}"><i class="fas fa-user-plus"></i> Add User</a></li>
                         <li><a href="#"><i class="fas fa-list-ul"></i> User List</a></li>
@@ -19,6 +23,9 @@
                     </ul>
                 </li>
 
+                <li class="menu-title">
+                    <span>People Management</span>
+                </li>
                 <li class="submenu">
                     <a href="#"><i class="fas fa-user-graduate"></i> <span> Students</span> <span class="menu-arrow"></span></a>
                     <ul>
@@ -34,9 +41,10 @@
 
                     </ul>
                 </li>
-                 <li class="menu-title">
-                        <span>Academics</span>
-                     </li>
+
+                <li class="menu-title">
+                    <span>Academics</span>
+                </li>
                 <li class="submenu">
                     <a href="#"><i class="fas fa-book-reader"></i> <span> Subjects</span> <span class="menu-arrow"></span></a>
                     <ul>
@@ -69,30 +77,39 @@
                     </ul>
                 </li>
 
+                <li class="menu-title">
+                    <span>Attendance & Tracking</span>
+                </li>
                 <li>
                     <a href="#"><i class="fas fa-calendar-check"></i> <span>View Attendance</span></a>
                 </li>
 
+                <li class="menu-title">
+                    <span>Feedback Management</span>
+                </li>
                 <li>
                     <a href="#"><i class="fas fa-comments"></i> <span>Teacher Feedback</span></a>
                 </li>
-
                 <li>
                     <a href="#"><i class="fas fa-comment-dots"></i> <span>Student Feedback</span></a>
                 </li>
 
+                <li class="menu-title">
+                    <span>Leave Management</span>
+                </li>
                 <li>
                     <a href="#"><i class="fas fa-user-clock"></i> <span>Teacher Leave</span></a>
                 </li>
-
                 <li>
                     <a href="#"><i class="fas fa-user-times"></i> <span>Student Leave</span></a>
                 </li>
 
+                <li class="menu-title">
+                    <span>Account Settings</span>
+                </li>
                 <li>
                     <a href="#"><i class="fas fa-key"></i> <span>Change Password</span></a>
                 </li>
-
                 <li>
                     <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
                 </li>
