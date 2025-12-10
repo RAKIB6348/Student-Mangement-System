@@ -57,7 +57,7 @@
                     <a href="#"><i class="fas fa-book-reader"></i> <span> Sections</span> <span class="menu-arrow"></span></a>
                     <ul>
                         <li><a href="{% url 'add_section' %}"><i class="fas fa-plus-circle"></i> Add Section</a></li>
-                        <li><a href="#"><i class="fas fa-list-ul"></i> View Section</a></li>
+                        <li><a href="{% url 'section_list' %}"><i class="fas fa-list-ul"></i> View Section</a></li>
                     </ul>
                 </li>
 
@@ -65,7 +65,7 @@
                     <a href="#"><i class="fas fa-book-reader"></i> <span> Sessions</span> <span class="menu-arrow"></span></a>
                     <ul>
                         <li><a href="{% url 'add_session' %}"><i class="fas fa-plus-circle"></i> Add Session</a></li>
-                        <li><a href="#"><i class="fas fa-list-ul"></i> View Session</a></li>
+                        <li><a href="{% url 'session_list' %}"><i class="fas fa-list-ul"></i> View Session</a></li>
                     </ul>
                 </li>
 

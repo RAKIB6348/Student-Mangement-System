@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .table thead th {
+        border-bottom-width: 1px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    .section-table-card {
+        border: 0;
+        border-radius: 1rem;
+    }
+    .badge-name {
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+        font-weight: 600;
+    }
+</style>
+
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title mb-2">Sections</h3>
+                <ul class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_home_page' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Section List</li>
+                </ul>
+            </div>
+            <div class="col-auto mt-3 mt-md-0">
+                <a href="{% url 'add_section' %}" class="btn btn-primary">
+                    <i class="fas fa-plus mr-2"></i>Add New Section
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm section-table-card">
+        <div class="card-header bg-white border-0 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between">
+            <div>
+                <h5 class="mb-1">Section Directory</h5>
+                <p class="mb-0 text-muted">Total Sections: {{ sections|length }}</p>
+            </div>
+            <form class="form-inline mt-3 mt-md-0">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    </div>
+                    <input type="text" class="form-control" id="sectionSearch" placeholder="Quick search (UI only)">
+                </div>
+            </form>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0" id="sectionTable">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Section Name</th>
+                        <th scope="col">Created Date</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for section in sections %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <span class="badge badge-info badge-name">{{ section.name }}</span>
+                            </td>
+                            <td>{{ section.created_at|date:"Y-m-d H:i"|default:"—" }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="#" class="btn btn-sm btn-info" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this section?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-layer-group fa-2x mb-3 d-block"></i>
+                                    No sections found yet. Use the "Add New Section" button to add one.
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple client-side search functionality
+    document.getElementById('sectionSearch').addEventListener('keyup', function() {
+        const searchValue = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#sectionTable tbody tr');
+
+        tableRows.forEach(row => {
+            const sectionName = row.cells[1]?.textContent.toLowerCase() || '';
+            if (sectionName.includes(searchValue)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock content %}
