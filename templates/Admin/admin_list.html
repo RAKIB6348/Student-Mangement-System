@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Admin List</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_home_page' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Admin List</li>
+                </ul>
+            </div>
+            <div class="col-auto text-right float-right ml-auto">
+                <a href="{% url 'register_admin' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Admin
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- /Page Header -->
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <!-- /Messages -->
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card card-table">
+                <div class="card-body">
+
+                    <!-- Search and Filter -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search by name, email, admin ID...">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <span class="badge badge-info">Total Admins: {{ admins.count }}</span>
+                        </div>
+                    </div>
+                    <!-- /Search and Filter -->
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover table-center mb-0" id="adminTable">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Admin ID</th>
+                                    <th>Profile</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Gender</th>
+                                    <th>Designation</th>
+                                    <th>Username</th>
+                                    <th>Registered Date</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if admins %}
+                                    {% for admin in admins %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>
+                                            <span class="badge badge-primary">{{ admin.admin_user_id|default:"N/A" }}</span>
+                                        </td>
+                                        <td>
+                                            {% if admin.profile_pic %}
+                                                <img src="{{ admin.profile_pic.url }}" alt="{{ admin.first_name }}" class="rounded-circle" width="40" height="40">
+                                            {% else %}
+                                                <div class="avatar avatar-sm">
+                                                    <span class="avatar-title rounded-circle bg-primary">
+                                                        {{ admin.first_name|first|upper }}{{ admin.last_name|first|upper }}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <h2 class="table-avatar">
+                                                <a href="#">{{ admin.first_name }} {{ admin.last_name }}</a>
+                                            </h2>
+                                        </td>
+                                        <td>{{ admin.email|default:"N/A" }}</td>
+                                        <td>{{ admin.phone|default:"N/A" }}</td>
+                                        <td>{{ admin.gender|default:"N/A" }}</td>
+                                        <td>
+                                            {% if admin.designation %}
+                                                <span class="badge badge-success">{{ admin.designation }}</span>
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ admin.user.username }}</td>
+                                        <td>{{ admin.created_at|date:"M d, Y" }}</td>
+                                        <td class="text-right">
+                                            <div class="actions">
+                                                <a href="#" class="btn btn-sm bg-success-light mr-2" title="View">
+                                                    <i class="far fa-eye"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-sm bg-primary-light mr-2" title="Edit">
+                                                    <i class="far fa-edit"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-sm bg-danger-light" title="Delete"
+                                                   onclick="return confirm('Are you sure you want to delete this admin?')">
+                                                    <i class="far fa-trash-alt"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="11" class="text-center">
+                                            <div class="py-5">
+                                                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                                <p class="text-muted">No admins found.</p>
+                                                <a href="{% url 'register_admin' %}" class="btn btn-primary">
+                                                    <i class="fas fa-plus"></i> Add First Admin
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /Table -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Script -->
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    var input = this.value.toLowerCase();
+    var table = document.getElementById('adminTable');
+    var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+    for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var text = row.textContent.toLowerCase();
+
+        if (text.indexOf(input) > -1) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    }
+});
+</script>
+
+{% endblock %}

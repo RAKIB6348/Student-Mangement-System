@@ -1,5 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import TeacherInfo
+from account.models import User
+import secrets
+import string
 
 # Create your views here.
 def teacher_list(request):
@@ -9,6 +14,93 @@ def teacher_list(request):
 
 
 def add_teacher(request):
+    if request.method == 'POST':
+        try:
+            # Get form data - Account Info
+            email = request.POST.get('email')
+
+            # Get form data - Personal Info
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            gender = request.POST.get('gender')
+            date_of_birth = request.POST.get('date_of_birth') or None
+            phone = request.POST.get('phone') or None
+            profile_pic = request.FILES.get('profile_pic')
+
+            # Get form data - Job Info
+            designation = request.POST.get('designation') or None
+            joining_date = request.POST.get('joining_date') or None
+            qualification = request.POST.get('qualification') or None
+            experience = request.POST.get('experience') or None
+
+            # Get form data - Address Info
+            present_address = request.POST.get('present_address') or None
+            permanent_address = request.POST.get('permanent_address') or None
+
+            # Check if email already exists
+            if User.objects.filter(email=email).exists():
+                messages.error(request, f'Email "{email}" already exists!')
+                return render(request, 'Teacher/add_teacher.html')
+
+            # Auto-generate a secure password
+            alphabet = string.ascii_letters + string.digits + string.punctuation
+            password = ''.join(secrets.choice(alphabet) for i in range(12))
+
+            # Auto-generate username (teacher1, teacher2, teacher3, ...)
+            last_teacher_user = User.objects.filter(
+                user_type='Teacher',
+                username__startswith='teacher'
+            ).order_by('-id').first()
+
+            if last_teacher_user and last_teacher_user.username.startswith('teacher'):
+                # Extract the number from the last username
+                try:
+                    last_number = int(last_teacher_user.username.replace('teacher', ''))
+                    username = f'teacher{last_number + 1}'
+                except ValueError:
+                    # If extraction fails, count all teacher users and add 1
+                    count = User.objects.filter(user_type='Teacher').count()
+                    username = f'teacher{count + 1}'
+            else:
+                # First teacher
+                username = 'teacher1'
+
+            # Create User account first
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                user_type='Teacher',
+                gender=gender,
+                phone=phone,
+                profile_pic=profile_pic,
+            )
+
+            # Create TeacherInfo record
+            teacher = TeacherInfo.objects.create(
+                user=user,
+                first_name=first_name,
+                last_name=last_name,
+                gender=gender,
+                date_of_birth=date_of_birth,
+                phone=phone,
+                email=email,
+                designation=designation,
+                joining_date=joining_date,
+                qualification=qualification,
+                experience=experience,
+                present_address=present_address,
+                permanent_address=permanent_address,
+                profile_pic=profile_pic,
+            )
+
+            messages.success(request, f'Teacher {first_name} {last_name} added successfully! Teacher ID: {teacher.teacher_user_id} | Username: {username} | Password: {password}')
+            return redirect('teacher_list')
+
+        except Exception as e:
+            messages.error(request, f'Error creating teacher: {str(e)}')
 
     return render(request, 'Teacher/add_teacher.html')
 
