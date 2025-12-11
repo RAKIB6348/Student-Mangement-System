@@ -17,8 +17,11 @@ from .models import Subject, Section, Session, Class
 # ============================================================================
 
 def subject_list(request):
-    
-    return render(request, 'Academic/subject/subject_list.html')
+    subjects = Subject.objects.all().order_by('-created_at')
+    context = {
+        'subjects': subjects
+    }
+    return render(request, 'Academic/subject/subject_list.html', context)
 
 
 def add_subject(request):
@@ -63,8 +66,11 @@ def edit_subject(request):
 # ============================================================================
 
 def section_list(request):
-    
-    return render(request, 'Academic/section/section_list.html')
+    sections = Section.objects.all().order_by('-created_at')
+    context = {
+        'sections': sections
+    }
+    return render(request, 'Academic/section/section_list.html', context)
 
 
 def add_section(request):
@@ -95,8 +101,11 @@ def add_section(request):
 # ============================================================================
 
 def session_list(request):
-    
-    return render(request, 'Academic/session/session_list.html')
+    sessions = Session.objects.all().order_by('-created_at')
+    context = {
+        'sessions': sessions
+    }
+    return render(request, 'Academic/session/session_list.html', context)
 
 
 def add_session(request):
@@ -188,5 +197,8 @@ def add_class(request):
 
 
 def class_list(request):
-    
-    return render(request, 'Academic/class/class_list.html')
+    classes = Class.objects.all().order_by('-created_at')
+    context = {
+        'classes': classes
+    }
+    return render(request, 'Academic/class/class_list.html', context)
