@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Edit Section</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_home_page' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'section_list' %}">Sections</a></li>
+                    <li class="breadcrumb-item active">Edit Section</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="row">
+
+                            <div class="col-12">
+                                <h5 class="form-title"><span>Section Information</span></h5>
+                            </div>
+
+                            <!-- Section Name -->
+                            <div class="col-12 col-sm-6">
+                                <div class="form-group">
+                                    <label>Section Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="name" class="form-control" placeholder="e.g. Section A, Blue, Science Batch" value="{{ section.name }}" required>
+                                    <small class="form-text text-muted">Example: Section A, Section B, Blue, Red, Science Batch</small>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Update Section</button>
+                                <a href="{% url 'section_list' %}" class="btn btn-secondary">Cancel</a>
+                            </div>
+
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

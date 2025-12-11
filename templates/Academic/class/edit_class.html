@@ -5,11 +5,11 @@
     <div class="page-header">
         <div class="row align-items-center">
             <div class="col">
-                <h3 class="page-title">Edit Subject</h3>
+                <h3 class="page-title">Edit Class</h3>
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'admin_home_page' %}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'subject_list' %}">Subjects</a></li>
-                    <li class="breadcrumb-item active">Edit Subject</li>
+                    <li class="breadcrumb-item"><a href="{% url 'class_list' %}">Classes</a></li>
+                    <li class="breadcrumb-item active">Edit Class</li>
                 </ul>
             </div>
         </div>
@@ -26,29 +26,30 @@
                         <div class="row">
 
                             <div class="col-12">
-                                <h5 class="form-title"><span>Subject Information</span></h5>
+                                <h5 class="form-title"><span>Class Information</span></h5>
                             </div>
 
-                            <!-- Subject Name -->
+                            <!-- Class Name -->
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Subject Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="name" class="form-control" placeholder="e.g. Mathematics" value="{{ subject.name }}" required>
+                                    <label>Class Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="name" class="form-control" placeholder="e.g. Class 1, Grade 10" value="{{ class.name }}" required>
                                 </div>
                             </div>
 
-                            <!-- Subject Code -->
+                            <!-- Class Code -->
                             <div class="col-12 col-sm-6">
                                 <div class="form-group">
-                                    <label>Subject Code <span class="text-danger">*</span></label>
-                                    <input type="text" name="code" class="form-control" placeholder="e.g. MATH101" value="{{ subject.code }}" required>
+                                    <label>Class Code <span class="text-danger">*</span></label>
+                                    <input type="number" name="class_code" class="form-control" placeholder="e.g. 1, 10" min="1" max="99" value="{{ class.class_code }}" required>
+                                    <small class="form-text text-muted">Enter a number between 1-99</small>
                                 </div>
                             </div>
 
                             <!-- Submit Button -->
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary">Update Subject</button>
-                                <a href="{% url 'subject_list' %}" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Update Class</button>
+                                <a href="{% url 'class_list' %}" class="btn btn-secondary">Cancel</a>
                             </div>
 
                         </div>

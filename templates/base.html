@@ -32,11 +32,28 @@
 
         <div class="page-wrapper">
             {% block content %}
-            
+
             {% endblock content %}
             {% include "Includes/footer.html" %}
-            
+
         </div>
+    </div>
+
+    <!-- Toast Container for Messages -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast align-items-center text-white border-0 {% if message.tags == 'error' %}bg-danger{% elif message.tags == 'success' %}bg-success{% elif message.tags == 'warning' %}bg-warning{% elif message.tags == 'info' %}bg-info{% else %}bg-primary{% endif %}" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'success' %}fa-check-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% elif message.tags == 'info' %}fa-info-circle{% else %}fa-bell{% endif %} me-2"></i>
+                            {{ message }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
     </div>
 
     <!-- JS -->
@@ -51,6 +68,19 @@
 
     <!-- Custom Script -->
     <script src="{% static 'assets/js/script.js' %}"></script>
+
+    <!-- Toast Notification Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize and show all toasts
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            var toastList = toastElList.map(function(toastEl) {
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+                return toast;
+            });
+        });
+    </script>
 
 </body>
 
