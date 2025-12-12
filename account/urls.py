@@ -14,4 +14,8 @@ urlpatterns = [
     # profile
     path('profile/', profile_page, name='profile_page'),
     path('change-password/', change_password, name='change_password'),
+
+    # password reset
+    path('forgot-password/', forgot_password, name='forgot_password'),
+    path('reset-password/<uidb64>/<token>/', reset_password, name='reset_password'),
 ]
