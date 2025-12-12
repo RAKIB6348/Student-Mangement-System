@@ -152,3 +152,128 @@ def student_create(request):
 def student_dashboard(request):
 
     return render(request, 'Student/student_dashboard.html')
+
+
+def student_edit(request, id):
+    # Get the student instance or return 404
+    student = StudentInfo.objects.select_related('user', 'klass', 'session', 'section').get(id=id)
+
+    # Get all classes, sessions, and sections for the dropdowns
+    classes = Class.objects.all()
+    sessions = Session.objects.all()
+    sections = Section.objects.all()
+
+    if request.method == 'POST':
+        try:
+            # Get form data
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            email = request.POST.get('email')
+            gender = request.POST.get('gender')
+            date_of_birth = request.POST.get('date_of_birth') or None
+            klass_id = request.POST.get('klass')
+            session_id = request.POST.get('session')
+            section_id = request.POST.get('section') or None
+            religion = request.POST.get('religion') or None
+            joining_date = request.POST.get('joining_date') or None
+            phone = request.POST.get('phone') or None
+            blood_group = request.POST.get('blood_group') or None
+
+            # Parent information
+            father_name = request.POST.get('father_name') or None
+            father_occupation = request.POST.get('father_occupation') or None
+            father_mobile = request.POST.get('father_mobile') or None
+            father_email = request.POST.get('father_email') or None
+            mother_name = request.POST.get('mother_name') or None
+            mother_occupation = request.POST.get('mother_occupation') or None
+            mother_mobile = request.POST.get('mother_mobile') or None
+            mother_email = request.POST.get('mother_email') or None
+
+            # Address
+            present_address = request.POST.get('present_address') or None
+            permanent_address = request.POST.get('permanent_address') or None
+
+            # Profile picture
+            profile_pic = request.FILES.get('profile_pic')
+
+            # Update User account
+            student.user.first_name = first_name
+            student.user.last_name = last_name
+            student.user.email = email
+            student.user.gender = gender
+            student.user.phone = phone
+            student.user.save()
+
+            # Get foreign key objects
+            klass = Class.objects.get(id=klass_id)
+            session = Session.objects.get(id=session_id)
+            section = Section.objects.get(id=section_id) if section_id else None
+
+            # Update StudentInfo record
+            student.first_name = first_name
+            student.last_name = last_name
+            student.gender = gender
+            student.date_of_birth = date_of_birth
+            student.klass = klass
+            student.session = session
+            student.section = section
+            student.religion = religion
+            student.joining_date = joining_date
+            student.phone = phone
+            student.email = email
+            student.blood_group = blood_group
+            student.father_name = father_name
+            student.father_occupation = father_occupation
+            student.father_mobile = father_mobile
+            student.father_email = father_email
+            student.mother_name = mother_name
+            student.mother_occupation = mother_occupation
+            student.mother_mobile = mother_mobile
+            student.mother_email = mother_email
+            student.present_address = present_address
+            student.permanent_address = permanent_address
+
+            # Update profile picture only if a new one is uploaded
+            if profile_pic:
+                student.profile_pic = profile_pic
+
+            student.save()
+
+            messages.success(request, f'Student {first_name} {last_name} updated successfully!')
+            return redirect('student_list')
+
+        except Class.DoesNotExist:
+            messages.error(request, 'Invalid Class ID. Please select a valid class.')
+        except Session.DoesNotExist:
+            messages.error(request, 'Invalid Session ID. Please select a valid session.')
+        except Section.DoesNotExist:
+            messages.error(request, 'Invalid Section ID. Please select a valid section.')
+        except Exception as e:
+            messages.error(request, f'Error updating student: {str(e)}')
+
+    context = {
+        'student': student,
+        'classes': classes,
+        'sessions': sessions,
+        'sections': sections,
+    }
+    return render(request, 'Student/edit_student.html', context)
+
+
+def student_delete(request, id):
+    try:
+        student = StudentInfo.objects.select_related('user').get(id=id)
+        student_name = f"{student.first_name} {student.last_name}"
+
+        # Delete the associated user account as well
+        user = student.user
+        student.delete()
+        user.delete()
+
+        messages.success(request, f'Student {student_name} has been deleted successfully!')
+    except StudentInfo.DoesNotExist:
+        messages.error(request, 'Student not found.')
+    except Exception as e:
+        messages.error(request, f'Error deleting student: {str(e)}')
+
+    return redirect('student_list')

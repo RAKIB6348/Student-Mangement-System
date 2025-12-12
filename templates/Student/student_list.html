@@ -134,10 +134,10 @@
                                     <a href="#" class="btn btn-sm btn-info" title="View">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="#" class="btn btn-sm btn-warning" title="Edit">
+                                    <a href="{% url 'student_edit' student.id %}" class="btn btn-sm btn-warning" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="#" class="btn btn-sm btn-danger" title="Delete">
+                                    <a href="{% url 'student_delete' student.id %}" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete {{ student.first_name }} {{ student.last_name }}? This action cannot be undone.')">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </div>
