@@ -8,8 +8,13 @@ import string
 
 # Create your views here.
 def teacher_list(request):
+    teachers = TeacherInfo.objects.all()
 
-    return render(request, 'Teacher/teacher_list.html')
+    context = {
+        "teachers": teachers,
+    }
+
+    return render(request, 'Teacher/teacher_list.html', context)
 
 
 
@@ -107,5 +112,96 @@ def add_teacher(request):
 
 @login_required
 def teacher_dashboard(request):
-    
+
     return render(request, "Teacher/teacher_dashboard.html")
+
+
+def teacher_edit(request, id):
+    # Get the teacher instance or return 404
+    teacher = TeacherInfo.objects.select_related('user').get(id=id)
+
+    if request.method == 'POST':
+        try:
+            # Get form data - Account Info
+            email = request.POST.get('email')
+
+            # Get form data - Personal Info
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            gender = request.POST.get('gender')
+            date_of_birth = request.POST.get('date_of_birth') or None
+            phone = request.POST.get('phone') or None
+            profile_pic = request.FILES.get('profile_pic')
+
+            # Get form data - Job Info
+            designation = request.POST.get('designation') or None
+            joining_date = request.POST.get('joining_date') or None
+            qualification = request.POST.get('qualification') or None
+            experience = request.POST.get('experience') or None
+
+            # Get form data - Address Info
+            present_address = request.POST.get('present_address') or None
+            permanent_address = request.POST.get('permanent_address') or None
+
+            # Update User account
+            teacher.user.first_name = first_name
+            teacher.user.last_name = last_name
+            teacher.user.email = email
+            teacher.user.gender = gender
+            teacher.user.phone = phone
+
+            # Update profile picture in User model only if new one is uploaded
+            if profile_pic:
+                teacher.user.profile_pic = profile_pic
+
+            teacher.user.save()
+
+            # Update TeacherInfo record
+            teacher.first_name = first_name
+            teacher.last_name = last_name
+            teacher.gender = gender
+            teacher.date_of_birth = date_of_birth
+            teacher.phone = phone
+            teacher.email = email
+            teacher.designation = designation
+            teacher.joining_date = joining_date
+            teacher.qualification = qualification
+            teacher.experience = experience
+            teacher.present_address = present_address
+            teacher.permanent_address = permanent_address
+
+            # Update profile picture in TeacherInfo model only if new one is uploaded
+            if profile_pic:
+                teacher.profile_pic = profile_pic
+
+            teacher.save()
+
+            messages.success(request, f'Teacher {first_name} {last_name} updated successfully!')
+            return redirect('teacher_list')
+
+        except Exception as e:
+            messages.error(request, f'Error updating teacher: {str(e)}')
+
+    context = {
+        'teacher': teacher,
+    }
+    return render(request, 'Teacher/edit_teacher.html', context)
+
+
+def teacher_delete(request, id):
+    try:
+        teacher = TeacherInfo.objects.select_related('user').get(id=id)
+        teacher_name = f"{teacher.first_name} {teacher.last_name}"
+
+        # Delete the associated user account as well
+        user = teacher.user
+        teacher.delete()
+        user.delete()
+
+        messages.success(request, f'Teacher {teacher_name} has been deleted successfully!')
+    except TeacherInfo.DoesNotExist:
+        messages.error(request, 'Teacher not found.')
+    except Exception as e:
+        messages.error(request, f'Error deleting teacher: {str(e)}')
+
+    return redirect('teacher_list')
