@@ -13,4 +13,5 @@ urlpatterns = [
 
     # profile
     path('profile/', profile_page, name='profile_page'),
+    path('change-password/', change_password, name='change_password'),
 ]
