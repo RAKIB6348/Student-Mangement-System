@@ -93,3 +93,79 @@ def admin_list(request):
 def admin_home_page(request):
 
     return render(request, 'Admin/home.html')
+
+
+def admin_edit(request, id):
+    # Get the admin instance or return 404
+    admin = AdminProfile.objects.select_related('user').get(id=id)
+
+    if request.method == 'POST':
+        try:
+            # Get form data - Personal Info
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            email = request.POST.get('email')
+            gender = request.POST.get('gender')
+            phone = request.POST.get('phone') or None
+            designation = request.POST.get('designation') or None
+            address = request.POST.get('address') or None
+            profile_pic = request.FILES.get('profile_pic')
+
+            # Update User account
+            admin.user.first_name = first_name
+            admin.user.last_name = last_name
+            admin.user.email = email
+            admin.user.gender = gender
+            admin.user.phone = phone
+            admin.user.address = address
+
+            # Update profile picture in User model only if new one is uploaded
+            if profile_pic:
+                admin.user.profile_pic = profile_pic
+
+            admin.user.save()
+
+            # Update AdminProfile record
+            admin.first_name = first_name
+            admin.last_name = last_name
+            admin.email = email
+            admin.gender = gender
+            admin.phone = phone
+            admin.designation = designation
+            admin.address = address
+
+            # Update profile picture in AdminProfile model only if new one is uploaded
+            if profile_pic:
+                admin.profile_pic = profile_pic
+
+            admin.save()
+
+            messages.success(request, f'Admin {first_name} {last_name} updated successfully!')
+            return redirect('admin_list')
+
+        except Exception as e:
+            messages.error(request, f'Error updating admin: {str(e)}')
+
+    context = {
+        'admin': admin,
+    }
+    return render(request, 'Admin/edit_admin.html', context)
+
+
+def admin_delete(request, id):
+    try:
+        admin = AdminProfile.objects.select_related('user').get(id=id)
+        admin_name = f"{admin.first_name} {admin.last_name}"
+
+        # Delete the associated user account as well
+        user = admin.user
+        admin.delete()
+        user.delete()
+
+        messages.success(request, f'Admin {admin_name} has been deleted successfully!')
+    except AdminProfile.DoesNotExist:
+        messages.error(request, 'Admin not found.')
+    except Exception as e:
+        messages.error(request, f'Error deleting admin: {str(e)}')
+
+    return redirect('admin_list')
