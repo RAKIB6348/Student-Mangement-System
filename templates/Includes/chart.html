@@ -1,0 +1,103 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+            var options = {
+            series: [{{ student_count }}, {{ teacher_count }}, {{ subject_count }}, {{ class_count }}],
+            chart: {
+                width: 380,
+                type: 'pie',
+            },
+            labels: ['Students', 'Teacher', 'Subject', 'Class'],
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        width: 200
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+        };
+
+        var chart = new ApexCharts(document.querySelector("#all_details"), options);
+        chart.render();
+
+        // Bar chart
+        var genderChart = document.querySelector('#student_gender, #stud_gender');
+        if (!genderChart) {
+            return;
+        }
+
+        var maleCount = Number('{{ student_gender_male|default_if_none:"0" }}') || 0;
+        var femaleCount = Number('{{ student_gender_female|default_if_none:"0" }}') || 0;
+
+        var optionsBar = {
+            chart: {
+                type: 'bar',
+                height: 350,
+                width: '100%',
+                toolbar: {
+                    show: false
+                },
+            },
+            colors: ['#fdbb38', '#19affb'],
+            dataLabels: {
+                enabled: false
+            },
+            plotOptions: {
+                bar: {
+                    columnWidth: '45%',
+                    distributed: true
+                }
+            },
+            series: [{
+                name: "Students",
+                data: [maleCount, femaleCount],
+            }],
+            xaxis: {
+                categories: ['Boys', 'Girls'],
+                axisBorder: {
+                    show: false
+                },
+                axisTicks: {
+                    show: false
+                },
+                labels: {
+                    style: {
+                        colors: '#777'
+                    }
+                }
+            },
+            yaxis: {
+                axisBorder: {
+                    show: false
+                },
+                axisTicks: {
+                    show: false
+                },
+                labels: {
+                    style: {
+                        colors: '#777'
+                    }
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function (value) {
+                        return value + ' students';
+                    }
+                }
+            },
+            legend: {
+                show: false
+            }
+
+        }
+
+        var chartBar = new ApexCharts(genderChart, optionsBar);
+        chartBar.render();
+
+    });
+</script>
