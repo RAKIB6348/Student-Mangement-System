@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'academic',
     'student',
     'teacher',
+    'active_link',
 ]
 
 MIDDLEWARE = [
