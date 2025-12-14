@@ -8,4 +8,6 @@ urlpatterns = [
     path('admin-list/', admin_list, name='admin_list'),
     path('admin-edit/<int:id>/', admin_edit, name='admin_edit'),
     path('admin-delete/<int:id>/', admin_delete, name='admin_delete'),
+
+    path('send-teacher-notification/', send_teacher_notification, name='send_teacher_notification'),
 ]

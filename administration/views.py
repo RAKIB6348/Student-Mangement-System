@@ -191,3 +191,10 @@ def admin_delete(request, id):
         messages.error(request, f'Error deleting admin: {str(e)}')
 
     return redirect('admin_list')
+
+
+
+#===================== teacher feedback ======================
+def send_teacher_notification(request):
+
+    return render(request, 'Admin/send_teacher_notification.html')
