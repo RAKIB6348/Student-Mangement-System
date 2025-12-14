@@ -4,6 +4,11 @@ from django.contrib import messages
 from .models import AdminProfile
 from account.models import User
 
+from student.models import StudentInfo
+from teacher.models import TeacherInfo
+from academic.models import Subject, Class
+
+
 # Create your views here.
 def register_admin(request):
     if request.method == 'POST':
@@ -91,8 +96,25 @@ def admin_list(request):
 
 @login_required
 def admin_home_page(request):
+    
+    student_count = StudentInfo.objects.all().count()
+    teacher_count = TeacherInfo.objects.all().count()
+    class_count = Class.objects.all().count()
+    subject_count = Subject.objects.all().count()
 
-    return render(request, 'Admin/home.html')
+    student_gender_male = StudentInfo.objects.filter(gender = 'Male').count()
+    student_gender_female = StudentInfo.objects.filter(gender = 'Female').count()
+
+    context = {
+        'student_count': student_count,
+        'teacher_count': teacher_count,
+        'class_count': class_count,
+        'subject_count': subject_count,
+        'student_gender_male' : student_gender_male,
+        'student_gender_female' : student_gender_female,
+    }
+
+    return render(request, 'Admin/home.html', context)
 
 
 def admin_edit(request, id):
