@@ -197,4 +197,10 @@ def admin_delete(request, id):
 #===================== teacher feedback ======================
 def send_teacher_notification(request):
 
-    return render(request, 'Admin/send_teacher_notification.html')
+    teacher = TeacherInfo.objects.all()
+
+    context = {
+        'teacher' : teacher,
+    }
+
+    return render(request, 'Admin/send_teacher_notification.html', context)

@@ -15,9 +15,7 @@
             </div>
             <div class="col-auto text-right float-right ml-auto">
                 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
-  Send Teacher Notification
-</button>
+
                 <a href="#" class="btn btn-primary mr-2"><i class="fas fa-bell mr-1"></i> View All Notifications</a>
                 <a href="add-subject.html" class="btn btn-primary"><i class="fas fa-plus"></i></a>
             </div>
@@ -38,7 +36,18 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                
+                                {% for t in teacher %}
+                                <tr>
+                                    <td>{{forloop.counter}}</td>
+                                    <td>{{t.first_name}} {{t.last_name}}</td>
+                                    <td>{{t.email}}</td>
+                                    <td class="text-right">
+                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModalCenter">
+  Send Notification
+</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -49,11 +58,12 @@
 </div>
 
 <!-- View all Notification Modal -->
+{% for i in teacher %}
 <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+        <h5 class="modal-title" id="exampleModalLongTitle">Send Notification To {{i.first_name}} {{i.last_name}}</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -68,7 +78,7 @@
     </div>
   </div>
 </div>
-
+{% endfor %}
 
     
 {% endblock %}
