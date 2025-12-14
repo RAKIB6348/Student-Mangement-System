@@ -4,7 +4,8 @@
             var options = {
             series: [{{ student_count }}, {{ teacher_count }}, {{ subject_count }}, {{ class_count }}],
             chart: {
-                width: 380,
+                height: 350,
+                width: '100%',
                 type: 'pie',
             },
             labels: ['Students', 'Teacher', 'Subject', 'Class'],
@@ -111,7 +112,8 @@
                     breakpoint: 480,
                     options: {
                         chart: {
-                            width: 200
+                            height: 350,
+                            width: '100%',
                         },
                         legend: {
                             position: 'bottom'
@@ -127,7 +129,8 @@
         var options = {
                 series: [{{class_count}}, {{subject_count}}],
                 chart: {
-                    width: 380,
+                    height: 350,
+                    width: '100%',
                     type: 'donut',
                 },
                 labels: ['Class', 'Subject'],
@@ -148,9 +151,7 @@
                         return val + " - " + opts.w.globals.series[opts.seriesIndex]
                     }
                 },
-                title: {
-                    text: 'Gradient Donut with custom Start-angle'
-                },
+                
                 responsive: [{
                     breakpoint: 480,
                     options: {
