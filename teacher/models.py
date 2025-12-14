@@ -63,3 +63,17 @@ class TeacherInfo(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+    
+
+
+
+
+# ================ notification ==============================
+
+class TeacherNotification(models.Model):
+    teacher_id = models.ForeignKey(TeacherInfo, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.teacher_id.first_name} {self.teacher_id.last_name}"

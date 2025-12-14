@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import TeacherInfo
+from .models import TeacherInfo, TeacherNotification
 
 
 @admin.register(TeacherInfo)
@@ -51,3 +51,7 @@ class TeacherInfoAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = ('teacher_user_id', 'created_at')  # both generated → no manual edit
+
+
+
+admin.site.register(TeacherNotification)
