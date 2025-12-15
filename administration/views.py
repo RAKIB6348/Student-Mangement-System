@@ -1,6 +1,9 @@
+import json
+
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Count
 from .models import AdminProfile
 from account.models import User
 
@@ -102,16 +105,23 @@ def admin_home_page(request):
     class_count = Class.objects.all().count()
     subject_count = Subject.objects.all().count()
 
-    student_gender_male = StudentInfo.objects.filter(gender = 'Male').count()
-    student_gender_female = StudentInfo.objects.filter(gender = 'Female').count()
+    class_student_data = (
+        StudentInfo.objects.filter(klass__isnull=False)
+        .values('klass__name', 'klass__class_code')
+        .annotate(total=Count('id'))
+        .order_by('klass__class_code', 'klass__name')
+    )
+
+    class_student_labels = [entry['klass__name'] for entry in class_student_data]
+    class_student_counts = [entry['total'] for entry in class_student_data]
 
     context = {
         'student_count': student_count,
         'teacher_count': teacher_count,
         'class_count': class_count,
         'subject_count': subject_count,
-        'student_gender_male' : student_gender_male,
-        'student_gender_female' : student_gender_female,
+        'class_student_labels': json.dumps(class_student_labels),
+        'class_student_counts': json.dumps(class_student_counts),
     }
 
     return render(request, 'Admin/home.html', context)

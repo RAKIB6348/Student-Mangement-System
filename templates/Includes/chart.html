@@ -1,11 +1,28 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
-            var options = {
+        var chartSize = {
+            height: 350,
+            width: '100%'
+        };
+
+        function ensureChartContainer(selector) {
+            var el = document.querySelector(selector);
+            if (el) {
+                el.style.height = chartSize.height + 'px';
+                el.style.width = chartSize.width;
+            }
+        }
+
+        ensureChartContainer('#all_details');
+        ensureChartContainer('#stud_gender');
+        ensureChartContainer('#student_gender');
+
+        var options = {
             series: [{{ student_count }}, {{ teacher_count }}, {{ subject_count }}, {{ class_count }}],
             chart: {
-                height: 350,
-                width: '100%',
+                height: chartSize.height,
+                width: chartSize.width,
                 type: 'pie',
             },
             labels: ['Students', 'Teacher', 'Subject', 'Class'],
@@ -25,25 +42,25 @@
         var chart = new ApexCharts(document.querySelector("#all_details"), options);
         chart.render();
 
-        // Bar chart
-        var genderChart = document.querySelector('#student_gender, #stud_gender');
-        if (!genderChart) {
+        // Class-wise student bar chart
+        var classChart = document.querySelector('#student_gender, #stud_gender');
+        if (!classChart) {
             return;
         }
 
-        var maleCount = Number('{{ student_gender_male|default_if_none:"0" }}') || 0;
-        var femaleCount = Number('{{ student_gender_female|default_if_none:"0" }}') || 0;
+        var classLabels = JSON.parse('{{ class_student_labels|escapejs }}');
+        var classCounts = JSON.parse('{{ class_student_counts|escapejs }}');
 
         var optionsBar = {
             chart: {
                 type: 'bar',
-                height: 350,
-                width: '100%',
+                height: chartSize.height,
+                width: chartSize.width,
                 toolbar: {
                     show: false
                 },
             },
-            colors: ['#fdbb38', '#19affb'],
+            colors: ['#fdbb38', '#19affb', '#9b59b6', '#2ecc71', '#e74c3c', '#8e44ad', '#3498db', '#1abc9c'],
             dataLabels: {
                 enabled: false
             },
@@ -55,10 +72,10 @@
             },
             series: [{
                 name: "Students",
-                data: [maleCount, femaleCount],
+                data: classCounts,
             }],
             xaxis: {
-                categories: ['Boys', 'Girls'],
+                categories: classLabels,
                 axisBorder: {
                     show: false
                 },
@@ -97,8 +114,8 @@
 
         }
 
-        var chartBar = new ApexCharts(genderChart, optionsBar);
-        chartBar.render();
+        var classBarChart = new ApexCharts(classChart, optionsBar);
+        classBarChart.render();
 
 
         // student and teacher
@@ -106,6 +123,8 @@
                 series: [{{student_count}}, {{teacher_count}}],
                 chart: {
                     type: 'donut',
+                    height: chartSize.height,
+                    width: chartSize.width,
                 },
                 labels: ['Students', 'Teacher'],
                 responsive: [{
@@ -129,8 +148,8 @@
         var options = {
                 series: [{{class_count}}, {{subject_count}}],
                 chart: {
-                    height: 350,
-                    width: '100%',
+                    height: chartSize.height,
+                    width: chartSize.width,
                     type: 'donut',
                 },
                 labels: ['Class', 'Subject'],
