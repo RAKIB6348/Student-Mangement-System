@@ -131,10 +131,10 @@
                             <td>{{ student.permanent_address|default:"—"|truncatewords:5 }}</td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a href="{% url 'student_detail' student.id %}" class="btn btn-sm btn-info" title="View">
+                                    <a href="{% url 'student_detail' student.id %}" class="btn btn-sm btn-info mr-2" title="View">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{% url 'student_edit' student.id %}" class="btn btn-sm btn-warning" title="Edit">
+                                    <a href="{% url 'student_edit' student.id %}" class="btn btn-sm btn-warning mr-2" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="{% url 'student_delete' student.id %}" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete {{ student.first_name }} {{ student.last_name }}? This action cannot be undone.')">
