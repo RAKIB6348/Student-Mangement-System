@@ -6,17 +6,27 @@
             width: '100%'
         };
 
-        function ensureChartContainer(selector) {
-            var el = document.querySelector(selector);
-            if (el) {
-                el.style.height = chartSize.height + 'px';
-                el.style.width = chartSize.width;
-            }
+        function getSizeValue(value) {
+            return typeof value === 'number' ? value + 'px' : value;
         }
 
-        ensureChartContainer('#all_details');
-        ensureChartContainer('#stud_gender');
-        ensureChartContainer('#student_gender');
+        function ensureChartContainer(selector) {
+            var el = document.querySelector(selector);
+            if (!el) {
+                return;
+            }
+
+            var heightValue = getSizeValue(chartSize.height);
+            var widthValue = getSizeValue(chartSize.width);
+
+            el.style.height = heightValue;
+            el.style.minHeight = heightValue;
+            el.style.maxHeight = heightValue;
+            el.style.width = widthValue;
+            el.style.minWidth = widthValue;
+        }
+
+        ['#all_details', '#stud_gender', '#student_gender'].forEach(ensureChartContainer);
 
         var options = {
             series: [{{ student_count }}, {{ teacher_count }}, {{ subject_count }}, {{ class_count }}],
