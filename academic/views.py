@@ -8,7 +8,7 @@ Author: Student Management System
 Created: 2024
 """
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Subject, Section, Session, Class
 
@@ -22,6 +22,14 @@ def subject_list(request):
         'subjects': subjects
     }
     return render(request, 'Academic/subject/subject_list.html', context)
+
+
+def subject_detail(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    context = {
+        'subject': subject
+    }
+    return render(request, 'Academic/subject/subject_detail.html', context)
 
 
 def add_subject(request):
@@ -122,6 +130,14 @@ def section_list(request):
     return render(request, 'Academic/section/section_list.html', context)
 
 
+def section_detail(request, section_id):
+    section = get_object_or_404(Section, id=section_id)
+    context = {
+        'section': section
+    }
+    return render(request, 'Academic/section/section_detail.html', context)
+
+
 def add_section(request):
     if request.method == 'POST':
         try:
@@ -202,6 +218,14 @@ def session_list(request):
         'sessions': sessions
     }
     return render(request, 'Academic/session/session_list.html', context)
+
+
+def session_detail(request, session_id):
+    session = get_object_or_404(Session, id=session_id)
+    context = {
+        'session': session
+    }
+    return render(request, 'Academic/session/session_detail.html', context)
 
 
 def add_session(request):
@@ -362,6 +386,14 @@ def class_list(request):
         'classes': classes
     }
     return render(request, 'Academic/class/class_list.html', context)
+
+
+def class_detail(request, class_id):
+    class_obj = get_object_or_404(Class, id=class_id)
+    context = {
+        'klass': class_obj
+    }
+    return render(request, 'Academic/class/class_detail.html', context)
 
 
 def edit_class(request, class_id):

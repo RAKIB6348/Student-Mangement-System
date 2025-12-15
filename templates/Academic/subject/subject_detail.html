@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title mb-2">Subject Details</h3>
+                <ul class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'subject_list' %}">Subjects</a></li>
+                    <li class="breadcrumb-item active">{{ subject.name }}</li>
+                </ul>
+            </div>
+            <div class="col-auto mt-3 mt-md-0">
+                <a href="{% url 'edit_subject' subject.id %}" class="btn btn-warning mr-2">
+                    <i class="fas fa-edit mr-1"></i>Edit
+                </a>
+                <a href="{% url 'subject_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Subject Name</dt>
+                <dd class="col-sm-8">{{ subject.name|default:"—" }}</dd>
+
+                <dt class="col-sm-4">Subject Code</dt>
+                <dd class="col-sm-8">{{ subject.code|default:"—" }}</dd>
+
+                <dt class="col-sm-4">Created At</dt>
+                <dd class="col-sm-8">{{ subject.created_at|date:"Y-m-d H:i"|default:"—" }}</dd>
+
+                <dt class="col-sm-4">Last Updated</dt>
+                <dd class="col-sm-8">{{ subject.updated_at|date:"Y-m-d H:i"|default:"—" }}</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}
