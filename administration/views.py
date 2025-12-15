@@ -1,6 +1,6 @@
 import json
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count
@@ -95,6 +95,18 @@ def admin_list(request):
     }
 
     return render(request, 'Admin/admin_list.html', context)
+
+
+def admin_detail(request, id):
+    admin = get_object_or_404(
+        AdminProfile.objects.select_related('user'),
+        id=id
+    )
+
+    context = {
+        "admin": admin,
+    }
+    return render(request, 'Admin/admin_detail.html', context)
 
 
 @login_required

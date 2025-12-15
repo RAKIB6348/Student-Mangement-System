@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title mb-2">Teacher Profile</h3>
+                <ul class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'teacher_list' %}">Teachers</a></li>
+                    <li class="breadcrumb-item active">{{ teacher.first_name }} {{ teacher.last_name }}</li>
+                </ul>
+            </div>
+            <div class="col-auto mt-3 mt-md-0">
+                <a href="{% url 'teacher_edit' teacher.id %}" class="btn btn-warning mr-2">
+                    <i class="fas fa-edit mr-1"></i>Edit
+                </a>
+                <a href="{% url 'teacher_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body d-flex flex-column flex-md-row align-items-start align-items-md-center">
+            <div class="mr-md-4 mb-3 mb-md-0 text-center text-md-left">
+                {% if teacher.profile_pic %}
+                    <img src="{{ teacher.profile_pic.url }}" alt="{{ teacher.first_name }} {{ teacher.last_name }}" class="rounded-circle" width="110" height="110" style="object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" alt="avatar" class="rounded-circle" width="110" height="110">
+                {% endif %}
+            </div>
+            <div>
+                <h4 class="mb-1">{{ teacher.first_name|default:"—" }} {{ teacher.last_name|default:"" }}</h4>
+                <p class="text-muted mb-2">{{ teacher.designation|default:"—" }}</p>
+                <div class="d-flex flex-wrap">
+                    <span class="badge badge-primary mr-2 mb-2">Teacher ID: {{ teacher.teacher_user_id|default:"—" }}</span>
+                    <span class="badge badge-success mr-2 mb-2">Experience: {{ teacher.experience|default:"—" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Full Name</dt>
+                        <dd class="col-sm-7">{{ teacher.first_name|default:"—" }} {{ teacher.last_name|default:"" }}</dd>
+
+                        <dt class="col-sm-5">Gender</dt>
+                        <dd class="col-sm-7">{{ teacher.gender|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Date of Birth</dt>
+                        <dd class="col-sm-7">{{ teacher.date_of_birth|date:"Y-m-d"|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Phone</dt>
+                        <dd class="col-sm-7">{{ teacher.phone|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Email</dt>
+                        <dd class="col-sm-7">{{ teacher.email|default:"—" }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Address</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Present Address</dt>
+                        <dd class="col-sm-7">{{ teacher.present_address|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Permanent Address</dt>
+                        <dd class="col-sm-7">{{ teacher.permanent_address|default:"—" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Professional Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Designation</dt>
+                        <dd class="col-sm-7">{{ teacher.designation|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Joining Date</dt>
+                        <dd class="col-sm-7">{{ teacher.joining_date|date:"Y-m-d"|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Qualification</dt>
+                        <dd class="col-sm-7">{{ teacher.qualification|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Experience</dt>
+                        <dd class="col-sm-7">{{ teacher.experience|default:"—" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

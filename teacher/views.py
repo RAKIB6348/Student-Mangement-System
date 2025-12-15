@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import TeacherInfo
@@ -15,6 +15,18 @@ def teacher_list(request):
     }
 
     return render(request, 'Teacher/teacher_list.html', context)
+
+
+def teacher_detail(request, id):
+    teacher = get_object_or_404(
+        TeacherInfo.objects.select_related('user'),
+        id=id
+    )
+
+    context = {
+        "teacher": teacher,
+    }
+    return render(request, 'Teacher/teacher_detail.html', context)
 
 
 

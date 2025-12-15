@@ -114,7 +114,7 @@
                                         <td>{{ admin.created_at|date:"M d, Y" }}</td>
                                         <td class="text-right">
                                             <div class="actions">
-                                                <a href="#" class="btn btn-sm bg-success-light mr-2" title="View">
+                                                <a href="{% url 'admin_detail' admin.id %}" class="btn btn-sm bg-success-light mr-2" title="View">
                                                     <i class="far fa-eye"></i>
                                                 </a>
                                                 <a href="{% url 'admin_edit' admin.id %}" class="btn btn-sm bg-primary-light mr-2" title="Edit">

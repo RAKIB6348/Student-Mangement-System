@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title mb-2">Student Profile</h3>
+                <ul class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'student_list' %}">Students</a></li>
+                    <li class="breadcrumb-item active">{{ student.first_name }} {{ student.last_name }}</li>
+                </ul>
+            </div>
+            <div class="col-auto mt-3 mt-md-0">
+                <a href="{% url 'student_edit' student.id %}" class="btn btn-warning mr-2">
+                    <i class="fas fa-edit mr-1"></i>Edit
+                </a>
+                <a href="{% url 'student_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body d-flex flex-column flex-md-row align-items-start align-items-md-center">
+            <div class="mr-md-4 mb-3 mb-md-0 text-center text-md-left">
+                {% if student.profile_pic %}
+                    <img src="{{ student.profile_pic.url }}" alt="{{ student.first_name }} {{ student.last_name }}" class="rounded-circle" width="110" height="110" style="object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" alt="avatar" class="rounded-circle" width="110" height="110">
+                {% endif %}
+            </div>
+            <div>
+                <h4 class="mb-1">{{ student.first_name|default:"—" }} {{ student.last_name|default:"" }}</h4>
+                <p class="text-muted mb-2">{{ student.klass.name|default:"—" }} {% if student.section %}- {{ student.section.name }}{% endif %}</p>
+                <div class="d-flex flex-wrap">
+                    <span class="badge badge-primary mr-2 mb-2">Student ID: {{ student.student_user_id|default:"—" }}</span>
+                    <span class="badge badge-info mr-2 mb-2">Admission No: {{ student.admission_no|default:"—" }}</span>
+                    <span class="badge badge-success mr-2 mb-2">Roll No: {{ student.roll_no|default:"—" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Full Name</dt>
+                        <dd class="col-sm-7">{{ student.first_name|default:"—" }} {{ student.last_name|default:"" }}</dd>
+
+                        <dt class="col-sm-5">Gender</dt>
+                        <dd class="col-sm-7">{{ student.gender|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Date of Birth</dt>
+                        <dd class="col-sm-7">{{ student.date_of_birth|date:"Y-m-d"|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Blood Group</dt>
+                        <dd class="col-sm-7">{{ student.blood_group|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Religion</dt>
+                        <dd class="col-sm-7">{{ student.religion|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Joining Date</dt>
+                        <dd class="col-sm-7">{{ student.joining_date|date:"Y-m-d"|default:"—" }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Contact & Address</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Phone</dt>
+                        <dd class="col-sm-7">{{ student.phone|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Email</dt>
+                        <dd class="col-sm-7">{{ student.email|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Present Address</dt>
+                        <dd class="col-sm-7">{{ student.present_address|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Permanent Address</dt>
+                        <dd class="col-sm-7">{{ student.permanent_address|default:"—" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Academic Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Session</dt>
+                        <dd class="col-sm-7">{{ student.session.name|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Class</dt>
+                        <dd class="col-sm-7">{{ student.klass.name|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Section</dt>
+                        <dd class="col-sm-7">{{ student.section.name|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Roll Number</dt>
+                        <dd class="col-sm-7">{{ student.roll_no|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Student User ID</dt>
+                        <dd class="col-sm-7">{{ student.student_user_id|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Admission Number</dt>
+                        <dd class="col-sm-7">{{ student.admission_no|default:"—" }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Parent / Guardian</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Father's Name</dt>
+                        <dd class="col-sm-7">{{ student.father_name|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Father's Occupation</dt>
+                        <dd class="col-sm-7">{{ student.father_occupation|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Father's Phone</dt>
+                        <dd class="col-sm-7">{{ student.father_mobile|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Father's Email</dt>
+                        <dd class="col-sm-7">{{ student.father_email|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Mother's Name</dt>
+                        <dd class="col-sm-7">{{ student.mother_name|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Mother's Occupation</dt>
+                        <dd class="col-sm-7">{{ student.mother_occupation|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Mother's Phone</dt>
+                        <dd class="col-sm-7">{{ student.mother_mobile|default:"—" }}</dd>
+
+                        <dt class="col-sm-5">Mother's Email</dt>
+                        <dd class="col-sm-7">{{ student.mother_email|default:"—" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

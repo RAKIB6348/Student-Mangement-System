@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import StudentInfo
@@ -18,6 +18,17 @@ def student_list(request):
 
     return render(request, "Student/student_list.html", context)
 
+
+def student_detail(request, id):
+    student = get_object_or_404(
+        StudentInfo.objects.select_related('klass', 'session', 'section', 'user'),
+        id=id
+    )
+
+    context = {
+        "student": student,
+    }
+    return render(request, "Student/student_detail.html", context)
 
 
 def student_create(request):
