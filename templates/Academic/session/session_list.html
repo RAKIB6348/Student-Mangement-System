@@ -66,7 +66,6 @@
                         <th scope="col">Session Name</th>
                         <th scope="col">Start Date</th>
                         <th scope="col">End Date</th>
-                        <th scope="col">Duration</th>
                         <th scope="col">Created Date</th>
                         <th scope="col">Actions</th>
                     </tr>
@@ -87,17 +86,6 @@
                                 <span class="badge badge-warning date-badge">
                                     <i class="fas fa-calendar-check mr-1"></i>{{ session.end_date|date:"M d, Y" }}
                                 </span>
-                            </td>
-                            <td>
-                                {% widthratio session.end_date.toordinal session.start_date.toordinal 1 as days_diff %}
-                                {% if days_diff %}
-                                    <small class="text-muted">
-                                        <i class="fas fa-clock mr-1"></i>
-                                        {% widthratio days_diff 365 1 %} year(s)
-                                    </small>
-                                {% else %}
-                                    <small class="text-muted">—</small>
-                                {% endif %}
                             </td>
                             <td>{{ session.created_at|date:"Y-m-d H:i"|default:"—" }}</td>
                             <td>
