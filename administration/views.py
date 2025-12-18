@@ -11,7 +11,7 @@ from .models import AdminProfile
 from account.models import User
 
 from student.models import StudentInfo
-from teacher.models import TeacherInfo
+from teacher.models import TeacherInfo, TeacherNotification
 from academic.models import Subject, Class
 
 
@@ -253,11 +253,48 @@ def admin_delete(request, id):
 
 #===================== teacher feedback ======================
 def send_teacher_notification(request):
+    if request.method == 'POST':
+        try:
+            teacher_id = request.POST.get('teacher_id')
+            subject = request.POST.get('subject')
+            message = request.POST.get('message')
+
+            if not teacher_id or not subject or not message:
+                messages.error(request, 'All fields are required!')
+            else:
+                teacher = get_object_or_404(TeacherInfo, id=teacher_id)
+
+                TeacherNotification.objects.create(
+                    teacher_id=teacher,
+                    subject=subject,
+                    message=message
+                )
+
+                messages.success(
+                    request,
+                    f'Notification sent successfully to {teacher.first_name} {teacher.last_name}!'
+                )
+
+        except Exception as e:
+            messages.error(request, f'Error sending notification: {str(e)}')
+
+        return redirect('send_teacher_notification')
 
     teacher = TeacherInfo.objects.all()
 
     context = {
-        'teacher' : teacher,
+        'teacher': teacher,
     }
 
     return render(request, 'Admin/send_teacher_notification.html', context)
+
+
+def view_teacher_notifications(request):
+    """Display all sent teacher notifications"""
+    notifications = TeacherNotification.objects.all().select_related('teacher_id').order_by('-created_at')
+
+    context = {
+        'notifications': notifications,
+    }
+
+    return render(request, 'Admin/view_teacher_notifications.html', context)

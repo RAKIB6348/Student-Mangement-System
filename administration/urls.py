@@ -11,4 +11,5 @@ urlpatterns = [
     path('admin-delete/<int:id>/', admin_delete, name='admin_delete'),
 
     path('send-teacher-notification/', send_teacher_notification, name='send_teacher_notification'),
+    path('view-teacher-notifications/', view_teacher_notifications, name='view_teacher_notifications'),
 ]

@@ -4,6 +4,33 @@
 {% block content %}
 
 <div class="content container-fluid">
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="row">
+            <div class="col-12">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                        <strong>
+                            {% if message.tags == 'success' %}
+                                <i class="fas fa-check-circle"></i> Success!
+                            {% elif message.tags == 'error' %}
+                                <i class="fas fa-exclamation-circle"></i> Error!
+                            {% elif message.tags == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i> Warning!
+                            {% else %}
+                                <i class="fas fa-info-circle"></i> Info!
+                            {% endif %}
+                        </strong> {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
     <div class="page-header">
         <div class="row align-items-center">
             <div class="col">
@@ -14,9 +41,9 @@
                 </ul>
             </div>
             <div class="col-auto text-right float-right ml-auto">
-                <!-- Button trigger modal -->
-
-                <a href="#" class="btn btn-primary mr-2"><i class="fas fa-bell mr-1"></i> View All Notifications</a>
+                <a href="{% url 'view_teacher_notifications' %}" class="btn btn-primary mr-2">
+                    <i class="fas fa-bell mr-1"></i> View All Notifications
+                </a>
             </div>
         </div>
     </div>
@@ -41,7 +68,7 @@
                                     <td>{{t.first_name}} {{t.last_name}}</td>
                                     <td>{{t.email}}</td>
                                     <td class="text-right">
-                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModalCenter">
+                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#notificationModal{{t.id}}">
   Send Notification
 </button>
                                     </td>
@@ -58,37 +85,48 @@
 
 <!-- View all Notification Modal -->
 {% for i in teacher %}
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="notificationModal{{i.id}}" tabindex="-1" role="dialog" aria-labelledby="notificationModalTitle{{i.id}}" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Send Notification To {{i.first_name}} {{i.last_name}}</h5>
+        <h5 class="modal-title" id="notificationModalTitle{{i.id}}">Send Notification To {{i.first_name}} {{i.last_name}}</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
-        <form method="post" action="">
-            {% csrf_token %}
+      <form method="post" action="">
+        {% csrf_token %}
+        <input type="hidden" name="teacher_id" value="{{i.id}}">
+        <div class="modal-body">
             <div class="form-group">
-                <label for="notification-subject-{{ forloop.counter }}">Subject</label>
-                <input type="text" class="form-control" id="notification-subject-{{ forloop.counter }}" name="subject" placeholder="Enter subject">
+                <label for="notification-subject-{{i.id}}">Subject</label>
+                <input type="text" class="form-control" id="notification-subject-{{i.id}}" name="subject" placeholder="Enter subject" required>
             </div>
             <div class="form-group">
-                <label for="notification-message-{{ forloop.counter }}">Message</label>
-                <textarea class="form-control" id="notification-message-{{ forloop.counter }}" name="message" rows="4" placeholder="Write notification message"></textarea>
+                <label for="notification-message-{{i.id}}">Message</label>
+                <textarea class="form-control" id="notification-message-{{i.id}}" name="message" rows="4" placeholder="Write notification message" required></textarea>
             </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Send Notification</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
 {% endfor %}
 
-    
+<script>
+    // Auto-close modals and scroll to top when messages appear
+    {% if messages %}
+        // Close all modals
+        $('.modal').modal('hide');
+        // Scroll to top to see messages
+        window.scrollTo(0, 0);
+    {% endif %}
+</script>
+
+
 {% endblock %}
     
