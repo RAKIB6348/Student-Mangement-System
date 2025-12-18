@@ -1,9 +1,12 @@
 import json
+import secrets
+import string
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count
+
 from .models import AdminProfile
 from account.models import User
 
@@ -12,15 +15,45 @@ from teacher.models import TeacherInfo
 from academic.models import Subject, Class
 
 
+def _generate_admin_username():
+    prefix = 'admin'
+    next_number = 1
+    last_admin_user = (
+        User.objects.filter(user_type='Admin', username__startswith=prefix)
+        .order_by('-id')
+        .first()
+    )
+
+    if last_admin_user and last_admin_user.username.startswith(prefix):
+        try:
+            last_number = int(last_admin_user.username.replace(prefix, ''))
+            next_number = last_number + 1
+        except ValueError:
+            next_number = User.objects.filter(user_type='Admin').count() + 1
+
+    username = f'{prefix}{next_number}'
+    while User.objects.filter(username=username).exists():
+        next_number += 1
+        username = f'{prefix}{next_number}'
+    return username
+
+
+def _generate_admin_password(length=12):
+    alphabet = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+
 # Create your views here.
 def register_admin(request):
+    generated_username = None
+    generated_password = None
+
     if request.method == 'POST':
+        generated_username = request.POST.get('generated_username') or _generate_admin_username()
+        generated_password = request.POST.get('generated_password') or _generate_admin_password()
         try:
             # Get form data - Account Info
-            username = request.POST.get('username')
             email = request.POST.get('email')
-            password = request.POST.get('password')
-            confirm_password = request.POST.get('confirm_password')
 
             # Get form data - Personal Info
             first_name = request.POST.get('first_name')
@@ -31,59 +64,61 @@ def register_admin(request):
             address = request.POST.get('address') or None
             profile_pic = request.FILES.get('profile_pic')
 
-            # Validate passwords
-            if password != confirm_password:
-                messages.error(request, 'Passwords do not match!')
-                return render(request, 'Admin/register_admin.html')
-
-            if len(password) < 8:
-                messages.error(request, 'Password must be at least 8 characters long!')
-                return render(request, 'Admin/register_admin.html')
-
-            # Check if username already exists
-            if User.objects.filter(username=username).exists():
-                messages.error(request, f'Username "{username}" already exists!')
-                return render(request, 'Admin/register_admin.html')
-
             # Check if email already exists
             if User.objects.filter(email=email).exists():
                 messages.error(request, f'Email "{email}" already exists!')
-                return render(request, 'Admin/register_admin.html')
+            else:
+                username_to_use = generated_username or _generate_admin_username()
+                if User.objects.filter(username=username_to_use).exists():
+                    username_to_use = _generate_admin_username()
 
-            # Create User account first
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                password=password,
-                first_name=first_name,
-                last_name=last_name,
-                user_type='Admin',
-                gender=gender,
-                phone=phone,
-                address=address,
-                profile_pic=profile_pic,
-            )
+                password_to_use = generated_password or _generate_admin_password()
 
-            # Create AdminProfile record
-            admin_profile = AdminProfile.objects.create(
-                user=user,
-                first_name=first_name,
-                last_name=last_name,
-                gender=gender,
-                phone=phone,
-                email=email,
-                designation=designation,
-                address=address,
-                profile_pic=profile_pic,
-            )
+                # Create User account first
+                user = User.objects.create_user(
+                    username=username_to_use,
+                    email=email,
+                    password=password_to_use,
+                    first_name=first_name,
+                    last_name=last_name,
+                    user_type='Admin',
+                    gender=gender,
+                    phone=phone,
+                    address=address,
+                    profile_pic=profile_pic,
+                )
 
-            messages.success(request, f'Admin {first_name} {last_name} registered successfully! Admin ID: {admin_profile.admin_user_id}')
-            return redirect('admin_home_page')
+                # Create AdminProfile record
+                admin_profile = AdminProfile.objects.create(
+                    user=user,
+                    first_name=first_name,
+                    last_name=last_name,
+                    gender=gender,
+                    phone=phone,
+                    email=email,
+                    designation=designation,
+                    address=address,
+                    profile_pic=profile_pic,
+                )
+
+                messages.success(
+                    request,
+                    f'Admin {first_name} {last_name} registered successfully! '
+                    f'Admin ID: {admin_profile.admin_user_id} | Username: {username_to_use} | Password: {password_to_use}'
+                )
+                return redirect('admin_home_page')
 
         except Exception as e:
             messages.error(request, f'Error registering admin: {str(e)}')
+    else:
+        generated_username = _generate_admin_username()
+        generated_password = _generate_admin_password()
 
-    return render(request, 'Admin/register_admin.html')
+    context = {
+        'generated_username': generated_username,
+        'generated_password': generated_password,
+    }
+    return render(request, 'Admin/register_admin.html', context)
 
 
 def admin_list(request):

@@ -42,7 +42,9 @@
                                         <div class="col-12 col-sm-6">
                                             <div class="form-group">
                                                 <label>Username <span class="text-danger">*</span></label>
-                                                <input type="text" name="username" class="form-control" required>
+                                                <input type="text" class="form-control" value="{{ generated_username }}" readonly>
+                                                <input type="hidden" name="generated_username" value="{{ generated_username }}">
+                                                <small class="form-text text-muted">Username is generated automatically.</small>
                                             </div>
                                         </div>
 
@@ -55,15 +57,10 @@
 
                                         <div class="col-12 col-sm-6">
                                             <div class="form-group">
-                                                <label>Password <span class="text-danger">*</span></label>
-                                                <input type="password" name="password" class="form-control" required>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-12 col-sm-6">
-                                            <div class="form-group">
-                                                <label>Confirm Password <span class="text-danger">*</span></label>
-                                                <input type="password" name="confirm_password" class="form-control" required>
+                                                <label>Temporary Password <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" value="{{ generated_password }}" readonly>
+                                                <input type="hidden" name="generated_password" value="{{ generated_password }}">
+                                                <small class="form-text text-muted">Password is auto-generated and shared after registration.</small>
                                             </div>
                                         </div>
 
@@ -138,4 +135,3 @@
 
             </div>   
 {% endblock %}
-
