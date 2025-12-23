@@ -94,7 +94,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form method="post" action="">
+      <form method="post" action="{% url 'send_teacher_notification'%}">
         {% csrf_token %}
         <input type="hidden" name="teacher_id" value="{{i.id}}">
         <div class="modal-body">

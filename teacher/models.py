@@ -72,8 +72,8 @@ class TeacherInfo(models.Model):
 
 class TeacherNotification(models.Model):
     teacher_id = models.ForeignKey(TeacherInfo, on_delete=models.CASCADE)
-    subject = models.CharField(max_length=200)
     message = models.TextField()
+    subject = models.CharField(max_length=250, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
