@@ -136,8 +136,8 @@
                 {% elif user.user_type == 'Teacher' %}
                 <ul>
                     <li class="menu-title"><span>Main Menu</span></li>
-                    <li class="{% active_link 'teacher_home_page' 'active' %}">
-                        <a href="#"><i class="fas fa-tachometer-alt"></i> <span> Dashboard</span></a>
+                    <li class="{% active_link 'teacher_dashboard' 'active' %}">
+                        <a href="{% url 'teacher_dashboard' %}"><i class="fas fa-tachometer-alt"></i> <span> Dashboard</span></a>
                     </li>
                     
                     <li class="menu-title"><span>Attendance</span></li>
