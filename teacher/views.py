@@ -125,7 +125,7 @@ def add_teacher(request):
 @login_required
 def teacher_dashboard(request):
 
-    return render(request, "Teacher/teacher_dashboard.html")
+    return render(request, "Teacher/home.html")
 
 
 def teacher_edit(request, id):
@@ -217,3 +217,10 @@ def teacher_delete(request, id):
         messages.error(request, f'Error deleting teacher: {str(e)}')
 
     return redirect('teacher_list')
+
+
+
+
+def teacher_notification(request):
+    
+    return render(request, 'Teacher/notifications.html')

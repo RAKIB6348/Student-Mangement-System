@@ -2,493 +2,369 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!-- Mirrored from preschool.dreamguystech.com/html-template/teacher-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 28 Oct 2021 11:11:40 GMT -->
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-<title>Dashboard</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <title>Teacher Dashboard</title>
 
-<link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}">
 
-<link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap">
 
-<link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
-<link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
+    <!-- CSS Plugins -->
+    <link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/simple-calendar/simple-calendar.css' %}">
 
-<link rel="stylesheet" href="{% static 'assets/plugins/simple-calendar/simple-calendar.css' %}">
-
-<link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
 </head>
+
 <body>
+    <div class="main-wrapper">
 
-<div class="main-wrapper">
+        <!-- Header -->
+        <div class="header">
+            <!-- Logo -->
+            <div class="header-left">
+                <a href="index.html" class="logo">
+                    <img src="{% static 'assets/img/logo.png' %}" alt="Logo">
+                </a>
+                <a href="index.html" class="logo logo-small">
+                    <img src="{% static 'assets/img/logo-small.png' %}" alt="Logo" width="30" height="30">
+                </a>
+            </div>
 
-<div class="header">
+            <a href="javascript:void(0);" id="toggle_btn">
+                <i class="fas fa-align-left"></i>
+            </a>
 
-<div class="header-left">
-<a href="index.html" class="logo">
-<img src="{% static 'assets/img/logo.png' %}" alt="Logo">
-</a>
-<a href="index.html" class="logo logo-small">
-<img src="{% static 'assets/img/logo-small.png' %}" alt="Logo" width="30" height="30">
-</a>
-</div>
+            <div class="top-nav-search">
+                <form>
+                    <input type="text" class="form-control" placeholder="Search here">
+                    <button class="btn" type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
 
-<a href="javascript:void(0);" id="toggle_btn">
-<i class="fas fa-align-left"></i>
-</a>
+            <a class="mobile_btn" id="mobile_btn">
+                <i class="fas fa-bars"></i>
+            </a>
 
-<div class="top-nav-search">
-<form>
-<input type="text" class="form-control" placeholder="Search here">
-<button class="btn" type="submit"><i class="fas fa-search"></i></button>
-</form>
-</div>
+            <!-- User Menu -->
+            <ul class="nav user-menu">
+                <!-- Notifications -->
+                <li class="nav-item dropdown noti-dropdown">
+                    <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                        <i class="far fa-bell"></i> <span class="badge badge-pill">3</span>
+                    </a>
+                    <div class="dropdown-menu notifications">
+                        <div class="topnav-dropdown-header">
+                            <span class="notification-title">Notifications</span>
+                            <a href="javascript:void(0)" class="clear-noti"> Clear All </a>
+                        </div>
+                        <div class="noti-content">
+                            <ul class="notification-list">
+                                <li class="notification-message">
+                                    <a href="#">
+                                        <div class="media">
+                                            <span class="avatar avatar-sm">
+                                                <img class="avatar-img rounded-circle" alt="User Image" src="{% static 'assets/img/profiles/avatar-02.jpg' %}">
+                                            </span>
+                                            <div class="media-body">
+                                                <p class="noti-details"><span class="noti-title">Carlson Tech</span> has approved <span class="noti-title">your estimate</span></p>
+                                                <p class="noti-time"><span class="notification-time">4 mins ago</span></p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="notification-message">
+                                    <a href="#">
+                                        <div class="media">
+                                            <span class="avatar avatar-sm">
+                                                <img class="avatar-img rounded-circle" alt="User Image" src="{% static 'assets/img/profiles/avatar-11.jpg' %}">
+                                            </span>
+                                            <div class="media-body">
+                                                <p class="noti-details"><span class="noti-title">International Software Inc</span> has sent you an invoice of <span class="noti-title">$218</span></p>
+                                                <p class="noti-time"><span class="notification-time">6 mins ago</span></p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="notification-message">
+                                    <a href="#">
+                                        <div class="media">
+                                            <span class="avatar avatar-sm">
+                                                <img class="avatar-img rounded-circle" alt="User Image" src="{% static 'assets/img/profiles/avatar-17.jpg' %}">
+                                            </span>
+                                            <div class="media-body">
+                                                <p class="noti-details"><span class="noti-title">John Hendry</span> sent a cancellation request <span class="noti-title">Apple iPhone XR</span></p>
+                                                <p class="noti-time"><span class="notification-time">8 mins ago</span></p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="notification-message">
+                                    <a href="#">
+                                        <div class="media">
+                                            <span class="avatar avatar-sm">
+                                                <img class="avatar-img rounded-circle" alt="User Image" src="{% static 'assets/img/profiles/avatar-13.jpg' %}">
+                                            </span>
+                                            <div class="media-body">
+                                                <p class="noti-details"><span class="noti-title">Mercury Software Inc</span> added a new product <span class="noti-title">Apple MacBook Pro</span></p>
+                                                <p class="noti-time"><span class="notification-time">12 mins ago</span></p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="topnav-dropdown-footer">
+                            <a href="#">View all Notifications</a>
+                        </div>
+                    </div>
+                </li>
 
-<a class="mobile_btn" id="mobile_btn">
-<i class="fas fa-bars"></i>
-</a>
+                <!-- Profile -->
+                <li class="nav-item dropdown has-arrow">
+                    <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                        <span class="user-img">
+                            <img class="rounded-circle" src="{% static 'assets/img/profiles/avatar-01.jpg' %}" width="31" alt="Ryan Taylor">
+                        </span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <div class="user-header">
+                            <div class="avatar avatar-sm">
+                                <img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" alt="User Image" class="avatar-img rounded-circle">
+                            </div>
+                            <div class="user-text">
+                                <h6>Ryan Taylor</h6>
+                                <p class="text-muted mb-0">Administrator</p>
+                            </div>
+                        </div>
+                        <a class="dropdown-item" href="">My Profile</a>
+                        <a class="dropdown-item" href="inbox.html">Inbox</a>
+                        <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                    </div>
+                </li>
 
-<ul class="nav user-menu">
+            </ul>
+        </div>
 
-<li class="nav-item dropdown noti-dropdown">
-<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-<i class="far fa-bell"></i> <span class="badge badge-pill">3</span>
-</a>
-<div class="dropdown-menu notifications">
-<div class="topnav-dropdown-header">
-<span class="notification-title">Notifications</span>
-<a href="javascript:void(0)" class="clear-noti"> Clear All </a>
-</div>
-<div class="noti-content">
-<ul class="notification-list">
-<li class="notification-message">
-<a href="#">
-<div class="media">
-<span class="avatar avatar-sm">
-<img class="avatar-img rounded-circle" alt="User Image" src="{% static 'assets/img/profiles/avatar-02.jpg' %}">
-</span>
-<div class="media-body">
-<p class="noti-details"><span class="noti-title">Carlson Tech</span> has approved <span class="noti-title">your estimate</span></p>
-<p class="noti-time"><span class="notification-time">4 mins ago</span></p>
-</div>
-</div>
-</a>
-</li>
-<li class="notification-message">
-<a href="#">
-<div class="media">
-<span class="avatar avatar-sm">
-<img class="avatar-img rounded-circle" alt="User Image" src="{% static 'assets/img/profiles/avatar-11.jpg' %}">
-</span>
-<div class="media-body">
-<p class="noti-details"><span class="noti-title">International Software Inc</span> has sent you a invoice in the amount of <span class="noti-title">$218</span></p>
-<p class="noti-time"><span class="notification-time">6 mins ago</span></p>
-</div>
-</div>
-</a>
-</li>
-<li class="notification-message">
-<a href="#">
-<div class="media">
-<span class="avatar avatar-sm">
-<img class="avatar-img rounded-circle" alt="User Image" src="{% static 'assets/img/profiles/avatar-17.jpg' %}">
-</span>
-<div class="media-body">
-<p class="noti-details"><span class="noti-title">John Hendry</span> sent a cancellation request <span class="noti-title">Apple iPhone XR</span></p>
-<p class="noti-time"><span class="notification-time">8 mins ago</span></p>
-</div>
-</div>
-</a>
-</li>
-<li class="notification-message">
-<a href="#">
-<div class="media">
-<span class="avatar avatar-sm">
-<img class="avatar-img rounded-circle" alt="User Image" src="{% static 'assets/img/profiles/avatar-13.jpg' %}">
-</span>
-<div class="media-body">
-<p class="noti-details"><span class="noti-title">Mercury Software Inc</span> added a new product <span class="noti-title">Apple MacBook Pro</span></p>
-<p class="noti-time"><span class="notification-time">12 mins ago</span></p>
-</div>
-</div>
-</a>
-</li>
-</ul>
-</div>
-<div class="topnav-dropdown-footer">
-<a href="#">View all Notifications</a>
-</div>
-</div>
-</li>
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-inner slimscroll">
+                <div id="sidebar-menu" class="sidebar-menu">
+                    <ul>
+                        <li class="menu-title"><span>Main Menu</span></li>
+                        <li class="submenu active">
+                            <a href="#"><i class="fas fa-chalkboard-teacher"></i> <span>Dashboard</span></a>
+                        </li>
+                        <li><a href="#"><i class="fas fa-user-check"></i> <span>Take Attendance</span></a></li>
+                        <li><a href="#"><i class="fas fa-calendar-alt"></i> <span>View and Update Attendance</span></a></li>
+                        <li><a href="#"><i class="fas fa-edit"></i> <span>Add Result</span></a></li>
+                        <li><a href="#"><i class="fas fa-file-medical"></i> <span>Apply for Leave</span></a></li>
+                        <li><a href="#"><i class="fas fa-comment-dots"></i> <span>Send Feedback</span></a></li>
+                        <li><a href="{% url 'teacher_notification' %}"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
+                        <li><a href="#"><i class="fas fa-key"></i> <span>Change Password</span></a></li>
+                        <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-<li class="nav-item dropdown has-arrow">
-<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-<span class="user-img"><img class="rounded-circle" src="{% static 'assets/img/profiles/avatar-01.jpg' %}" width="31" alt="Ryan Taylor"></span>
-</a>
-<div class="dropdown-menu">
-<div class="user-header">
-<div class="avatar avatar-sm">
-<img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" alt="User Image" class="avatar-img rounded-circle">
-</div>
-<div class="user-text">
-<h6>Ryan Taylor</h6>
-<p class="text-muted mb-0">Administrator</p>
-</div>
-</div>
-<a class="dropdown-item" href="">My Profile</a>
-<a class="dropdown-item" href="inbox.html">Inbox</a>
-<a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-</div>
-</li>
+        <!-- Page Wrapper -->
+        <div class="page-wrapper">
+            <div class="content container-fluid">
 
-</ul>
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h3 class="page-title">Welcome {{ user.username }}!</h3>
+                            <ul class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Teacher Dashboard</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
-</div>
+                <!-- Dashboard Widgets -->
+                <div class="row">
 
+                    <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                        <div class="card bg-five w-100">
+                            <div class="card-body">
+                                <div class="db-widgets d-flex justify-content-between align-items-center">
+                                    <div class="db-icon"><i class="fas fa-chalkboard"></i></div>
+                                    <div class="db-info">
+                                        <h3>04/06</h3>
+                                        <h6>Total Classes</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-<div class="sidebar" id="sidebar">
-<div class="sidebar-inner slimscroll">
-<div id="sidebar-menu" class="sidebar-menu">
-<ul>
-<li class="menu-title"><span>Main Menu</span></li>
+                    <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                        <div class="card bg-six w-100">
+                            <div class="card-body">
+                                <div class="db-widgets d-flex justify-content-between align-items-center">
+                                    <div class="db-icon"><i class="fas fa-user-graduate"></i></div>
+                                    <div class="db-info">
+                                        <h3>40/60</h3>
+                                        <h6>Total Students</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-<li class="submenu active">
-<a href="#"><i class="fas fa-chalkboard-teacher"></i> <span> Dashboard</span></span></a>
-</li>
-<li><a href="#"><i class="fas fa-user-check"></i> <span>Take Attendance</span></a></li>
-<li><a href="#"><i class="fas fa-calendar-alt"></i> <span>View and Update Attendance</span></a></li>
-<li><a href="#"><i class="fas fa-edit"></i> <span>Add Result</span></a></li>
-<li><a href="#"><i class="fas fa-file-medical"></i> <span>Apply for Leave</span></a></li>
-<li><a href="#"><i class="fas fa-comment-dots"></i> <span>Send Feedback</span></a></li>
-<li><a href="#"><i class="fas fa-key"></i> <span>Change Password</span></a></li>
-<li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+                    <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                        <div class="card bg-seven w-100">
+                            <div class="card-body">
+                                <div class="db-widgets d-flex justify-content-between align-items-center">
+                                    <div class="db-icon"><i class="fas fa-book-open"></i></div>
+                                    <div class="db-info">
+                                        <h3>30/50</h3>
+                                        <h6>Total Lessons</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                        <div class="card bg-eight w-100">
+                            <div class="card-body">
+                                <div class="db-widgets d-flex justify-content-between align-items-center">
+                                    <div class="db-icon"><i class="fas fa-clock"></i></div>
+                                    <div class="db-info">
+                                        <h3>15/20</h3>
+                                        <h6>Total Hours</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-</div>
-</div>
-</div>
+                </div>
 
-<div class="page-wrapper">
-<div class="content container-fluid">
+                <!-- Upcoming Lessons & Semester Progress -->
+                <div class="row">
+                    <div class="col-xl-8 col-lg-12 d-flex">
+                        <div class="card flex-fill">
+                            <div class="card-header">
+                                <h5 class="card-title">Upcoming Lessons</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive lesson">
+                                    <table class="table table-center">
+                                        <tbody>
+                                            <tr>
+                                                <td><b>Aug 4, Tue</b><p>2:30pm - 3:30pm</p></td>
+                                                <td><b>Lesson 30</b><p>Math Basics</p></td>
+                                                <td><a href="#">Confirmed</a></td>
+                                                <td><button type="submit" class="btn btn-info">Reschedule</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Aug 5, Wed</b><p>3:00pm - 4:30pm</p></td>
+                                                <td><b>Lesson 31</b><p>English Grammar</p></td>
+                                                <td><a href="#">Confirmed</a></td>
+                                                <td><button type="submit" class="btn btn-info">Reschedule</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-<div class="page-header">
-<div class="row">
-<div class="col-sm-12">
-<h3 class="page-title">Welcome {{user.username}}!</h3>
-<ul class="breadcrumb">
-<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-<li class="breadcrumb-item active">Teacher Dashboard</li>
-</ul>
-</div>
-</div>
-</div>
+                    <div class="col-xl-4 col-lg-12 d-flex">
+                        <div class="card flex-fill">
+                            <div class="card-header">
+                                <h5 class="card-title">Semester Progress</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-widget text-center">
+                                    <div class="circle-bar circle-bar1">
+                                        <div class="circle-graph1" data-percent="50"><b>50%</b></div>
+                                    </div>
+                                    <div class="dash-info mt-3">
+                                        <h6>Lesson Progressed</h6>
+                                        <h4>30 / 60</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-<div class="row">
-<div class="col-xl-3 col-sm-6 col-12 d-flex">
-<div class="card bg-five w-100">
-<div class="card-body">
-<div class="db-widgets d-flex justify-content-between align-items-center">
-<div class="db-icon">
-<i class="fas fa-chalkboard"></i>
-</div>
-<div class="db-info">
-<h3>04/06</h3>
-<h6>Total Classes</h6>
-</div>
-</div>
-</div>
-</div>
-</div>
+                <!-- Teaching Activity & Teaching History -->
+                <div class="row">
+                    <div class="col-xl-8 col-lg-12 d-flex">
+                        <div class="card flex-fill">
+                            <div class="card-header">
+                                <h5 class="card-title">Teaching Activity</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="apexcharts-area"></div>
+                            </div>
+                        </div>
+                    </div>
 
-<div class="col-xl-3 col-sm-6 col-12 d-flex">
-<div class="card bg-six w-100">
-<div class="card-body">
-<div class="db-widgets d-flex justify-content-between align-items-center">
-<div class="db-icon">
-<i class="fas fa-user-graduate"></i>
-</div>
-<div class="db-info">
-<h3>40/60</h3>
-<h6>Total Students</h6>
-</div>
-</div>
-</div>
-</div>
-</div>
+                    <div class="col-xl-4 col-lg-12 d-flex">
+                        <div class="card flex-fill">
+                            <div class="card-header">
+                                <h5 class="card-title">Teaching History</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="activity-feed">
+                                    <li class="feed-item"><div class="feed-date1">Sep 05, 9am-10am</div> <span class="feed-text1">Lesson 1</span> <p>In Progress</p></li>
+                                    <li class="feed-item"><div class="feed-date1">Sep 04, 2pm-3pm</div> <span class="feed-text1">Lesson 2</span> <p>Completed</p></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-<div class="col-xl-3 col-sm-6 col-12 d-flex">
-<div class="card bg-seven w-100">
-<div class="card-body">
-<div class="db-widgets d-flex justify-content-between align-items-center">
-<div class="db-icon">
-<i class="fas fa-book-open"></i>
-</div>
-<div class="db-info">
-<h3>30/50</h3>
-<h6>Total Lessons</h6>
-</div>
-</div>
-</div>
-</div>
-</div>
+                <!-- Calendar -->
+                <div class="row">
+                    <div class="col-12 d-flex">
+                        <div class="card flex-fill">
+                            <div class="card-header">
+                                <h5 class="card-title">Calendar</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="calendar-doctor" class="calendar-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-<div class="col-xl-3 col-sm-6 col-12 d-flex">
-<div class="card bg-eight w-100">
-<div class="card-body">
-<div class="db-widgets d-flex justify-content-between align-items-center">
-<div class="db-icon">
-<i class="fas fa-clock"></i>
-</div>
-<div class="db-info">
-<h3>15/20</h3>
-<h6>Total Hours</h6>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
+            </div>
+        </div>
 
-<div class="row">
-<div class="col-12 col-lg-12 col-xl-9">
-<div class="row">
-<div class="col-12 col-lg-8 col-xl-8 d-flex">
-<div class="card flex-fill">
-<div class="card-header">
-<div class="row align-items-center">
-<div class="col-6">
-<h5 class="card-title">Upcoming Lesson</h5>
-</div>
-<div class="col-6">
-<span class="float-right view-link"><a href="#">View All Courses</a></span>
-</div>
-</div>
-</div>
-<div class="pt-3 pb-3">
-<div class="table-responsive lesson">
-<table class="table table-center">
-<tbody>
-<tr>
-<td>
-<div class="date">
-<b>Aug 4, Tuesday</b>
-<p>2.30pm - 3.30pm (60min)</p>
-</div>
-</td>
-<td>
-<div class="date">
-<b>Lessons 30</b>
-<p>3.1 Ipsuum dolor</p>
-</div>
-</td>
-<td><a href="#">Confirmed</a></td>
-<td><button type="submit" class="btn btn-info">Reschedule</button></td>
-</tr>
+        <footer>
+            <p>Copyright © 2020 Dreamguys.</p>
+        </footer>
 
-<tr>
-<td>
-<div class="date">
-<b>Aug 5, Wednesday</b>
-<p>3.00pm - 4.30pm (90min)</p>
-</div>
-</td>
-<td>
-<div class="date">
-<b>Lessons 31</b>
-<p>3.2 Ipsuum dolor</p>
-</div>
-</td>
-<td><a href="#">Confirmed</a></td>
-<td><button type="submit" class="btn btn-info">Reschedule</button></td>
-</tr>
+    </div>
 
-<tr>
-<td>
-<div class="date">
-<b>Aug 6, Thursday</b>
-<p>11.00am - 12.00pm (20min)</p>
-</div>
-</td>
-<td>
-<div class="date">
-<b>Lessons 32</b>
-<p>3.3 Ipsuum dolor</p>
-</div>
-</td>
-<td><a href="#">Confirmed</a></td>
-<td><button type="submit" class="btn btn-info">Reschedule</button></td>
-</tr>
-
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-
-<div class="col-12 col-lg-4 col-xl-4 d-flex">
-<div class="card flex-fill">
-<div class="card-header">
-<div class="row align-items-center">
-<div class="col-12">
-<h5 class="card-title">Semester Progress</h5>
-</div>
-</div>
-</div>
-<div class="dash-widget">
-<div class="circle-bar circle-bar1">
-<div class="circle-graph1" data-percent="50">
-<b>50%</b>
-</div>
-</div>
-<div class="dash-info">
-<h6>Lesson Progressed</h6>
-<h4>30 <span>/ 60</span></h4>
-</div>
-</div>
-</div>
-</div>
-
-</div>
-
-<div class="row">
-<div class="col-12 col-lg-6 col-xl-8 d-flex">
-<div class="card flex-fill">
-<div class="card-header">
-<div class="row align-items-center">
-<div class="col-6">
-<h5 class="card-title">Teaching Activity</h5>
-</div>
-<div class="col-6">
-<ul class="list-inline-group text-right mb-0 pl-0">
-<li class="list-inline-item">
-<div class="form-group mb-0 amount-spent-select">
-<select class="form-control form-control-sm">
-<option>Weekly</option>
-<option>Monthly</option>
-<option>Yearly</option>
-</select>
-</div>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="card-body">
-<div id="apexcharts-area"></div>
-</div>
-</div>
-</div>
-
-<div class="col-12 col-lg-6 col-xl-4 d-flex">
-<div class="card flex-fill">
-<div class="card-header">
-<h5 class="card-title">Teaching History</h5>
-</div>
-<div class="card-body">
-<div class="teaching-card">
-<ul class="activity-feed">
-
-<li class="feed-item">
-<div class="feed-date1">Sep 05, 9 am - 10 am (60min)</div>
-<span class="feed-text1"><a>Lorem ipsum dolor</a></span>
-<p><span>In Progress</span></p>
-</li>
-
-<li class="feed-item">
-<div class="feed-date1">Sep 04, 2 pm - 3 pm (70min)</div>
-<span class="feed-text1"><a>Et dolore magna</a></span>
-<p>Completed</p>
-</li>
-
-<li class="feed-item">
-<div class="feed-date1">Sep 02, 1 pm - 2 am (80min)</div>
-<span class="feed-text1"><a>Exercitation ullamco</a></span>
-<p>Completed</p>
-</li>
-
-<li class="feed-item">
-<div class="feed-date1">Aug 30, 10 am - 12 pm (90min)</div>
-<span class="feed-text1"><a>Occaecat cupidatat</a></span>
-<p>Completed</p>
-</li>
-
-</ul>
-</div>
-</div>
-</div>
-</div>
-
-</div>
-
-<div class="col-12 col-lg-12 col-xl-3 d-flex">
-<div class="card flex-fill">
-<div class="card-header">
-<h5 class="card-title">Calendar</h5>
-</div>
-<div class="card-body">
-<div id="calendar-doctor" class="calendar-container"></div>
-
-<div class="calendar-info calendar-info1">
-<div class="calendar-details">
-<p>09 am</p>
-<h6 class="calendar-blue d-flex justify-content-between align-items-center">
-Fermentum <span>09am - 10pm</span></h6>
-</div>
-
-<div class="calendar-details">
-<p>10 am</p>
-<h6 class="calendar-violet d-flex justify-content-between align-items-center">
-Pharetra et <span>10am - 11am</span></h6>
-</div>
-
-<div class="calendar-details">
-<p>11 am</p>
-<h6 class="calendar-red d-flex justify-content-between align-items-center">
-Break <span>11am - 11.30am</span></h6>
-</div>
-
-<div class="calendar-details">
-<p>12 pm</p>
-<h6 class="calendar-orange d-flex justify-content-between align-items-center">
-Massa <span>11.30am - 12.00pm</span></h6>
-</div>
-
-<div class="calendar-details">
-<p>09 am</p>
-<h6 class="calendar-blue d-flex justify-content-between align-items-center">
-Fermentum <span>09am - 10pm</span></h6>
-</div>
-
-</div>
-</div>
-</div>
-
-</div>
-
-</div>
-
-<footer>
-<p>Copyright © 2020 Dreamguys.</p>
-</footer>
-
-</div>
-
-</div>
-
-<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
-<script src="{% static 'assets/js/popper.min.js' %}"></script>
-<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
-<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
-<script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
-<script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
-<script src="{% static 'assets/plugins/simple-calendar/jquery.simple-calendar.js' %}"></script>
-<script src="{% static 'assets/js/calander.js' %}"></script>
-<script src="{% static 'assets/js/circle-progress.min.js' %}"></script>
-<script src="{% static 'assets/js/script.js' %}"></script>
+    <!-- JS Scripts -->
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
+    <script src="{% static 'assets/plugins/simple-calendar/jquery.simple-calendar.js' %}"></script>
+    <script src="{% static 'assets/js/calander.js' %}"></script>
+    <script src="{% static 'assets/js/circle-progress.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
 
 </body>
-<!-- Mirrored from preschool.dreamguystech.com/html-template/teacher-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 28 Oct 2021 11:11:43 GMT -->
 </html>
