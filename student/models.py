@@ -187,5 +187,5 @@ class StudentInfo(models.Model):
     
     class Meta:
         verbose_name = "Student Info"
-        verbose_name_plural = "Students Info"
+        verbose_name_plural = "Student"
         ordering = ["session", "klass", "section", "roll_no"]

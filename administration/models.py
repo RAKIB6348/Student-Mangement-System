@@ -40,6 +40,10 @@ class AdminProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+    class Meta:
+        verbose_name_plural = "Admin"
+
     def save(self, *args, **kwargs):
         if not self.admin_user_id and self.user.user_id:
             self.admin_user_id = self.user.user_id

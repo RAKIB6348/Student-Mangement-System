@@ -52,7 +52,7 @@ class TeacherInfo(models.Model):
 
 
     class Meta:
-        verbose_name_plural = "Teacher Info" 
+        verbose_name_plural = "Teacher" 
         
 
     # -------- Auto Generate Teacher ID -------- #
@@ -75,6 +75,9 @@ class TeacherNotification(models.Model):
     message = models.TextField()
     subject = models.CharField(max_length=250, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Notifications"
 
     def __str__(self):
         return f"{self.teacher_id.first_name} {self.teacher_id.last_name}"
