@@ -68,7 +68,7 @@ class User(AbstractUser):
             # Role অনুযায়ী digit map
             role_map = {
                 "Admin": "99",
-                "Teacher": "22",
+                "Teacher": "88",
             }
             role_digit = role_map.get(self.user_type, "0")
 
