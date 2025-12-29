@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import TeacherInfo
+from .models import TeacherInfo, TeacherNotification
 from account.models import User
 import secrets
 import string
@@ -221,6 +221,7 @@ def teacher_delete(request, id):
 
 
 
+
 def teacher_notification(request):
-    
+
     return render(request, 'Teacher/notifications.html')

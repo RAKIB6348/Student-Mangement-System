@@ -19,6 +19,10 @@ class Subject(models.Model):
         auto_now_add=True,
         verbose_name="Created On"
     )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Last Updated On"
+    )
 
     def __str__(self):
         return f"{self.name} ({self.code})"
@@ -37,6 +41,7 @@ class Session(models.Model):
     end_date = models.DateField()
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
@@ -54,6 +59,7 @@ class Section(models.Model):
     name = models.CharField(max_length=50, verbose_name="Section Name")
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -79,6 +85,10 @@ class Class(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Created Date"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Last Updated Date"
     )
 
     class Meta:
