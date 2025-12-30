@@ -6,12 +6,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count
+from django.http import HttpResponseForbidden
 
 from .models import AdminProfile
 from account.models import User
 
 from student.models import StudentInfo
-from teacher.models import TeacherInfo, TeacherNotification
+from teacher.models import TeacherInfo, TeacherNotification, TeacherLeave
 from academic.models import Subject, Class
 
 
@@ -298,3 +299,38 @@ def view_teacher_notifications(request):
     }
 
     return render(request, 'Admin/view_teacher_notifications.html', context)
+
+
+@login_required
+def teacher_leave(request):
+    if request.user.user_type != 'Admin':
+        return HttpResponseForbidden('You do not have permission to view teacher leaves.')
+
+    leaves = TeacherLeave.objects.select_related('teacher').order_by('-created_at')
+
+    if request.method == 'POST':
+        leave_id = request.POST.get('leave_id')
+        action = request.POST.get('status')
+
+        try:
+            if not leave_id or not action:
+                raise ValueError('Leave and status are required.')
+
+            leave = TeacherLeave.objects.get(id=leave_id)
+            if action not in dict(TeacherLeave.STATUS):
+                raise ValueError('Invalid status selected.')
+
+            leave.status = action
+            leave.save(update_fields=['status'])
+            messages.success(request, f'Leave status updated to {action}.')
+        except TeacherLeave.DoesNotExist:
+            messages.error(request, 'Leave request not found.')
+        except Exception as exc:
+            messages.error(request, f'Unable to update leave: {exc}')
+
+        return redirect('teacher_leave')
+
+    return render(request, 'Admin/teacher_leave.html', {
+        'leaves': leaves,
+        'status_choices': TeacherLeave.STATUS,
+    })

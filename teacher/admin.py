@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import TeacherInfo, TeacherNotification
+from .models import TeacherInfo, TeacherNotification, TeacherLeave
 
 
 @admin.register(TeacherInfo)
@@ -55,3 +55,4 @@ class TeacherInfoAdmin(admin.ModelAdmin):
 
 
 admin.site.register(TeacherNotification)
+admin.site.register(TeacherLeave)

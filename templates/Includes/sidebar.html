@@ -117,7 +117,7 @@
                     <!-- Leave Management -->
                     <li class="menu-title"><span>Leave Management</span></li>
                     <li class="{% active_link 'teacher_leave' 'active' %}">
-                        <a href="#"><i class="fas fa-user-clock"></i> <span>Teacher Leave</span></a>
+                        <a href="{% url 'teacher_leave' %}"><i class="fas fa-user-clock"></i> <span>Teacher Leave</span></a>
                     </li>
                     <li class="{% active_link 'student_leave' 'active' %}">
                         <a href="#"><i class="fas fa-user-times"></i> <span>Student Leave</span></a>
@@ -155,7 +155,7 @@
                     
                     <li class="menu-title"><span>Leave & Feedback</span></li>
                     <li class="{% active_link 'apply_leave' 'active' %}">
-                        <a href="#"><i class="fas fa-file-medical"></i> <span>Apply for Leave</span></a>
+                        <a href="{% url 'apply_leave' %}"><i class="fas fa-file-medical"></i> <span>Apply for Leave</span></a>
                     </li>
                     <li class="{% active_link 'send_feedback' 'active' %}">
                         <a href="#"><i class="fas fa-comment-dots"></i> <span>Send Feedback</span></a>

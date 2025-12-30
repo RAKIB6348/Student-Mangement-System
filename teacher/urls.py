@@ -11,4 +11,5 @@ urlpatterns = [
     path('dashboard/', teacher_dashboard, name='teacher_dashboard'),
     
     path('notifications/', teacher_notification, name='teacher_notification'),
+    path('apply-leave/', apply_leave, name='apply_leave'),
 ]

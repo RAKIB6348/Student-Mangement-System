@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import TeacherInfo, TeacherNotification
+from .models import TeacherInfo, TeacherNotification, TeacherLeave
 from account.models import User
 import secrets
 import string
-from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_http_methods
+
+from .forms import TeacherLeaveForm
 
 
 # Create your views here.
@@ -234,3 +236,27 @@ def teacher_notification(request):
         'notifications': notifications
     })
 
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def apply_leave(request):
+    teacher = get_object_or_404(TeacherInfo, user=request.user)
+    leaves = TeacherLeave.objects.filter(
+        teacher=teacher
+    ).order_by('-created_at')
+
+    if request.method == 'POST':
+        form = TeacherLeaveForm(request.POST)
+        if form.is_valid():
+            leave = form.save(commit=False)
+            leave.teacher = teacher
+            leave.save()
+            messages.success(request, 'Leave request submitted successfully.')
+            return redirect('apply_leave')
+    else:
+        form = TeacherLeaveForm()
+
+    return render(request, 'Teacher/apply_leave.html', {
+        'form': form,
+        'leaves': leaves,
+    })

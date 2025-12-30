@@ -81,3 +81,42 @@ class TeacherNotification(models.Model):
 
     def __str__(self):
         return f"{self.teacher_id.first_name} {self.teacher_id.last_name}"
+
+
+# ============================ leave =============================
+
+class TeacherLeave(models.Model):
+    LEAVE_TYPE = (
+        ("Casual", "Casual"),
+        ("Sick", "Sick"),
+        ("Annual", "Annual"),
+        ("Paid", "Paid Leave"),
+        ("Unpaid", "Unpaid Leave"),
+    )
+    
+    STATUS = (
+        ("Pending", "Pending"),
+        ("Approved", "Approved"),
+        ("Rejected", "Rejected"),
+    )
+    
+    teacher = models.ForeignKey(
+        TeacherInfo,
+        on_delete=models.CASCADE
+    )
+    leave_type = models.CharField(max_length=20, choices=LEAVE_TYPE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    reason = models.TextField()
+    
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS,
+        default="Pending"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.teacher.first_name} {self.teacher.last_name}"
+
