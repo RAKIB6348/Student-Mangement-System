@@ -5,6 +5,8 @@ from .models import TeacherInfo, TeacherNotification
 from account.models import User
 import secrets
 import string
+from django.shortcuts import get_object_or_404
+
 
 # Create your views here.
 def teacher_list(request):
@@ -221,7 +223,14 @@ def teacher_delete(request, id):
 
 
 
-
+@login_required
 def teacher_notification(request):
+    teacher = get_object_or_404(TeacherInfo, user=request.user)
+    notifications = TeacherNotification.objects.filter(
+        teacher_id=teacher
+    ).order_by('-created_at')
 
-    return render(request, 'Teacher/notifications.html')
+    return render(request, 'Teacher/notifications.html', {
+        'notifications': notifications
+    })
+

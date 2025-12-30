@@ -32,7 +32,22 @@
                         </tr>
                      </thead>
                      <tbody>
+                        {% if notifications %}
+                           {% for n in notifications %}
+                              <tr>
+                                 <td>{{ forloop.counter }}</td>
+                                 <td>{{ n.subject }}</td>
+                                 <td>{{ n.message }}</td>
+                                 <td>{{ n.created_at|date:"d M, Y h:i A" }}</td>
+                              </tr>
+                           {% endfor %}
+                        {% else %}
+                           <tr>
+                              <td colspan="4" class="text-center">No notifications found</td>
+                           </tr>
+                        {% endif %}
                      </tbody>
+
                   </table>
                </div>
             </div>
