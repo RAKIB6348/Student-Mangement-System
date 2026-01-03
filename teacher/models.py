@@ -125,15 +125,14 @@ class TeacherLeave(models.Model):
 
  # =================== Teacher Feedback =========================
 
-class Teacher_Feedback(models.Model):
+class Feedback(models.Model):
     teacher_id = models.ForeignKey(TeacherInfo, on_delete=models.CASCADE)
     feedback = models.TextField()
     feedback_reply = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        verbose_name_plural = "Feedback"
+    
 
 
     def __str__(self):
