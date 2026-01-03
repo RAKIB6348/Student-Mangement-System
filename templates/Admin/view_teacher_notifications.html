@@ -71,13 +71,6 @@
                                         <td>{{ forloop.counter }}</td>
                                         <td>
                                             <h2 class="table-avatar">
-                                                <a href="#" class="avatar avatar-sm mr-2">
-                                                    {% if notification.teacher_id.profile_pic %}
-                                                        <img class="avatar-img rounded-circle" src="{{ notification.teacher_id.profile_pic.url }}" alt="Teacher Image">
-                                                    {% else %}
-                                                        <img class="avatar-img rounded-circle" src="https://via.placeholder.com/150" alt="Teacher Image">
-                                                    {% endif %}
-                                                </a>
                                                 <a href="#">{{ notification.teacher_id.first_name }} {{ notification.teacher_id.last_name }}</a>
                                             </h2>
                                         </td>
