@@ -32,6 +32,7 @@
                             <th>Reply Status</th>
                             <th>Submitted</th>
                             <th>Last Update</th>
+                            <th class="text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -42,9 +43,7 @@
                                         <div class="font-weight-semibold">{{ fb.teacher.first_name }} {{ fb.teacher.last_name }}</div>
                                         <small class="text-muted">ID: {{ fb.teacher.teacher_user_id|default:"N/A" }}</small>
                                     </td>
-                                    <td>
-                                        <p class="mb-0">{{ fb.feedback|truncatewords:25 }}</p>
-                                    </td>
+                                    <td>{{ fb.feedback|truncatewords:25 }}</td>
                                     <td>
                                         {% if fb.feedback_reply %}
                                             <span class="badge badge-success">Replied</span>
@@ -55,36 +54,21 @@
                                     <td>{{ fb.created_at|date:"M d, Y h:i A" }}</td>
                                     <td>
                                         {% if fb.feedback_reply %}
-                                            <span>{{ fb.updated_at|date:"M d, Y h:i A" }}</span>
+                                            {{ fb.updated_at|date:"M d, Y h:i A" }}
                                         {% else %}
                                             <span class="text-muted">Awaiting Response</span>
                                         {% endif %}
                                     </td>
-                                </tr>
-                                <tr class="bg-light">
-                                    <td colspan="5">
-                                        <form method="post" class="mb-0">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="feedback_id" value="{{ fb.id }}">
-                                            <div class="form-group">
-                                                <label for="reply-{{ fb.id }}" class="font-weight-semibold mb-1">Reply to {{ fb.teacher.first_name }}</label>
-                                                <textarea id="reply-{{ fb.id }}" name="feedback_reply" class="form-control" rows="3" placeholder="Type your response...">{{ fb.feedback_reply }}</textarea>
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                {% if fb.feedback_reply %}
-                                                    <small class="text-muted">Last reply saved on {{ fb.updated_at|date:"M d, Y h:i A" }}</small>
-                                                {% else %}
-                                                    <small class="text-muted">No reply sent yet.</small>
-                                                {% endif %}
-                                                <button type="submit" class="btn btn-sm btn-primary">Save Reply</button>
-                                            </div>
-                                        </form>
+                                    <td class="text-right">
+                                        <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#teacherFeedbackModal{{ fb.id }}">
+                                            Reply
+                                        </button>
                                     </td>
                                 </tr>
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="5" class="text-center py-5 text-muted">
+                                <td colspan="6" class="text-center py-5 text-muted">
                                     <i class="fas fa-comment-slash fa-2x mb-3"></i>
                                     <p class="mb-0">No feedback has been submitted yet.</p>
                                 </td>
@@ -96,4 +80,37 @@
         </div>
     </div>
 </div>
+
+{% for fb in feedback_entries %}
+<div class="modal fade" id="teacherFeedbackModal{{ fb.id }}" tabindex="-1" role="dialog" aria-labelledby="teacherFeedbackModalLabel{{ fb.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="teacherFeedbackModalLabel{{ fb.id }}">Reply to {{ fb.teacher.first_name }} {{ fb.teacher.last_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="feedback_id" value="{{ fb.id }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="font-weight-semibold">Feedback</label>
+                        <div class="p-3 bg-light border rounded">{{ fb.feedback|linebreaksbr }}</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="teacher-modal-reply-{{ fb.id }}">Reply</label>
+                        <textarea id="teacher-modal-reply-{{ fb.id }}" name="feedback_reply" class="form-control" rows="4" placeholder="Type your response...">{{ fb.feedback_reply }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Reply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
 {% endblock %}
