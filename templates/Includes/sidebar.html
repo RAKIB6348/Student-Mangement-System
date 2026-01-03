@@ -109,6 +109,13 @@
                         <a href="#"><i class="fas fa-calendar-check"></i> <span>View Attendance</span></a>
                     </li>
 
+                    <li class="{% active_link 'teacher_feedback_admin' 'active' %}">
+                        <a href="{% url 'teacher_feedback_admin' %}"><i class="fas fa-comments"></i> <span>Teacher Feedback</span></a>
+                    </li>
+                    <li class="{% active_link 'student_feedback_admin' 'active' %}">
+                        <a href="#"><i class="fas fa-user-graduate"></i> <span>Student Feedback</span></a>
+                    </li>
+
                     <li class="menu-title"><span>Feedback Management</span></li>
                     <li class="{% active_link 'send_teacher_notification' 'active' %}">
                         <a href="{% url 'send_teacher_notification' %}"><i class="fas fa-comments"></i> <span>Send Teacher Notification</span></a>
@@ -157,7 +164,7 @@
                     <li class="{% active_link 'apply_leave' 'active' %}">
                         <a href="{% url 'apply_leave' %}"><i class="fas fa-file-medical"></i> <span>Apply for Leave</span></a>
                     </li>
-                    <li class="{% active_link 'send_feedback' 'active' %}">
+                    <li class="{% active_link 'teacher_feedback' 'active' %}">
                         <a href="{% url 'teacher_feedback' %}"><i class="fas fa-comment-dots"></i> <span>Send Feedback</span></a>
                     </li>
                     <li class="{% active_link 'teacher_notification' 'active' %}">

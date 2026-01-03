@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Teacher Feedback</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_home_page' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Feedback</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between">
+            <div>
+                <h5 class="card-title mb-1">All Teacher Feedback</h5>
+                <p class="mb-0 text-muted">Track what teachers are sharing and respond promptly.</p>
+            </div>
+            <span class="badge badge-primary mt-3 mt-md-0">{{ feedback_entries|length }} entries</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Teacher</th>
+                            <th>Feedback</th>
+                            <th>Reply Status</th>
+                            <th>Submitted</th>
+                            <th>Last Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if feedback_entries %}
+                            {% for fb in feedback_entries %}
+                                <tr>
+                                    <td>
+                                        <div class="font-weight-semibold">{{ fb.teacher.first_name }} {{ fb.teacher.last_name }}</div>
+                                        <small class="text-muted">ID: {{ fb.teacher.teacher_user_id|default:"N/A" }}</small>
+                                    </td>
+                                    <td>
+                                        <p class="mb-0">{{ fb.feedback|truncatewords:25 }}</p>
+                                    </td>
+                                    <td>
+                                        {% if fb.feedback_reply %}
+                                            <span class="badge badge-success">Replied</span>
+                                        {% else %}
+                                            <span class="badge badge-warning">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ fb.created_at|date:"M d, Y h:i A" }}</td>
+                                    <td>
+                                        {% if fb.feedback_reply %}
+                                            <span>{{ fb.updated_at|date:"M d, Y h:i A" }}</span>
+                                        {% else %}
+                                            <span class="text-muted">Awaiting Response</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr class="bg-light">
+                                    <td colspan="5">
+                                        <form method="post" class="mb-0">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="feedback_id" value="{{ fb.id }}">
+                                            <div class="form-group">
+                                                <label for="reply-{{ fb.id }}" class="font-weight-semibold mb-1">Reply to {{ fb.teacher.first_name }}</label>
+                                                <textarea id="reply-{{ fb.id }}" name="feedback_reply" class="form-control" rows="3" placeholder="Type your response...">{{ fb.feedback_reply }}</textarea>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                {% if fb.feedback_reply %}
+                                                    <small class="text-muted">Last reply saved on {{ fb.updated_at|date:"M d, Y h:i A" }}</small>
+                                                {% else %}
+                                                    <small class="text-muted">No reply sent yet.</small>
+                                                {% endif %}
+                                                <button type="submit" class="btn btn-sm btn-primary">Save Reply</button>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="fas fa-comment-slash fa-2x mb-3"></i>
+                                    <p class="mb-0">No feedback has been submitted yet.</p>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

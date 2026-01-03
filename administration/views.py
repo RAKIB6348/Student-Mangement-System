@@ -12,7 +12,7 @@ from .models import AdminProfile
 from account.models import User
 
 from student.models import StudentInfo
-from teacher.models import TeacherInfo, TeacherNotification, TeacherLeave
+from teacher.models import TeacherInfo, TeacherNotification, TeacherLeave, Feedback
 from academic.models import Subject, Class
 
 
@@ -333,4 +333,34 @@ def teacher_leave(request):
     return render(request, 'Admin/teacher_leave.html', {
         'leaves': leaves,
         'status_choices': TeacherLeave.STATUS,
+    })
+
+
+@login_required
+def teacher_feedback_admin(request):
+    if request.user.user_type != 'Admin':
+        return HttpResponseForbidden('You do not have permission to view teacher feedback.')
+
+    if request.method == 'POST':
+        feedback_id = request.POST.get('feedback_id')
+        reply_text = request.POST.get('feedback_reply', '').strip()
+
+        try:
+            feedback_obj = Feedback.objects.get(id=feedback_id)
+        except (Feedback.DoesNotExist, TypeError, ValueError):
+            messages.error(request, 'Feedback entry not found.')
+        else:
+            if not reply_text:
+                messages.error(request, 'Reply cannot be empty.')
+            else:
+                feedback_obj.feedback_reply = reply_text
+                feedback_obj.save(update_fields=['feedback_reply', 'updated_at'])
+                messages.success(request, 'Reply saved successfully.')
+
+        return redirect('teacher_feedback_admin')
+
+    feedback_entries = Feedback.objects.select_related('teacher', 'teacher__user').order_by('-created_at')
+
+    return render(request, 'Admin/teacher_feedback.html', {
+        'feedback_entries': feedback_entries,
     })
