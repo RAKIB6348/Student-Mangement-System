@@ -10,4 +10,5 @@ urlpatterns = [
 
     path('dashboard/', student_dashboard, name='student_dashboard'),
     path('notifications/', student_notification, name='student_notification'),
+    path('feedback/', student_feedback, name='student_feedback'),
 ]

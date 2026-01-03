@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import StudentInfo, StudentNotification
+from django.http import HttpResponseForbidden
+from .models import StudentInfo, StudentNotification, StudentFeedback
 from account.models import User
 from academic.models import Session, Class, Section
 import secrets
 import string
+
+from .forms import StudentFeedbackForm
 
 # Create your views here.
 def student_list(request):
@@ -292,9 +295,37 @@ def student_delete(request, id):
 
 @login_required
 def student_notification(request):
+    if request.user.user_type != 'Student':
+        return HttpResponseForbidden('Only students can view notifications.')
+
     student = get_object_or_404(StudentInfo, user=request.user)
     notifications = StudentNotification.objects.filter(student=student).order_by('-created_at')
 
     return render(request, 'Student/notifications.html', {
         'notifications': notifications,
+    })
+
+
+@login_required
+def student_feedback(request):
+    if request.user.user_type != 'Student':
+        return HttpResponseForbidden('Only students can access feedback.')
+
+    student = get_object_or_404(StudentInfo, user=request.user)
+    feedback_entries = StudentFeedback.objects.filter(student=student)
+
+    if request.method == 'POST':
+        form = StudentFeedbackForm(request.POST)
+        if form.is_valid():
+            feedback = form.save(commit=False)
+            feedback.student = student
+            feedback.save()
+            messages.success(request, 'Feedback submitted successfully.')
+            return redirect('student_feedback')
+    else:
+        form = StudentFeedbackForm()
+
+    return render(request, 'Student/feedback.html', {
+        'form': form,
+        'feedback_entries': feedback_entries,
     })

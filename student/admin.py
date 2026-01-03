@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import StudentInfo, StudentNotification
+from .models import StudentInfo, StudentNotification, StudentFeedback
 
 
 @admin.register(StudentInfo)
@@ -77,3 +77,15 @@ class StudentNotificationAdmin(admin.ModelAdmin):
     list_display = ("student", "subject", "created_at")
     search_fields = ("student__first_name", "student__last_name", "subject")
     autocomplete_fields = ("student",)
+
+
+@admin.register(StudentFeedback)
+class StudentFeedbackAdmin(admin.ModelAdmin):
+    list_display = ("student", "created_at", "updated_at", "has_reply")
+    search_fields = ("student__first_name", "student__last_name", "feedback")
+    autocomplete_fields = ("student",)
+
+    def has_reply(self, obj):
+        return bool(obj.feedback_reply)
+
+    has_reply.boolean = True

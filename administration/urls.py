@@ -16,4 +16,5 @@ urlpatterns = [
     path('view-student-notifications/', view_student_notifications, name='view_student_notifications'),
     path('teacher-leave/', teacher_leave, name='teacher_leave'),
     path('teacher-feedback/', teacher_feedback_admin, name='teacher_feedback_admin'),
+    path('student-feedback/', student_feedback_admin, name='student_feedback_admin'),
 ]

@@ -207,3 +207,22 @@ class StudentNotification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.student.first_name} {self.student.last_name}"
+
+
+class StudentFeedback(models.Model):
+    student = models.ForeignKey(
+        StudentInfo,
+        on_delete=models.CASCADE,
+        related_name="feedback_entries"
+    )
+    feedback = models.TextField()
+    feedback_reply = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Student Feedback"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Feedback from {self.student.first_name} {self.student.last_name}"

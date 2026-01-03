@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Student Feedback</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_home_page' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Feedback</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between">
+            <div>
+                <h5 class="card-title mb-1">All Student Feedback</h5>
+                <p class="mb-0 text-muted">Respond to what students are sharing.</p>
+            </div>
+            <span class="badge badge-primary mt-3 mt-md-0">{{ feedback_entries|length }} entries</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Student</th>
+                            <th>Feedback</th>
+                            <th>Reply Status</th>
+                            <th>Submitted</th>
+                            <th>Last Update</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if feedback_entries %}
+                            {% for fb in feedback_entries %}
+                                <tr>
+                                    <td>
+                                        <div class="font-weight-semibold">{{ fb.student.first_name }} {{ fb.student.last_name }}</div>
+                                        <small class="text-muted">ID: {{ fb.student.student_user_id|default:"N/A" }}</small>
+                                    </td>
+                                    <td>{{ fb.feedback|truncatewords:25 }}</td>
+                                    <td>
+                                        {% if fb.feedback_reply %}
+                                            <span class="badge badge-success">Replied</span>
+                                        {% else %}
+                                            <span class="badge badge-warning">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ fb.created_at|date:"M d, Y h:i A" }}</td>
+                                    <td>
+                                        {% if fb.feedback_reply %}
+                                            {{ fb.updated_at|date:"M d, Y h:i A" }}
+                                        {% else %}
+                                            <span class="text-muted">Awaiting Response</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-right">
+                                        <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#studentFeedbackModal{{ fb.id }}">
+                                            Reply
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="fas fa-comment-slash fa-2x mb-3"></i>
+                                    <p class="mb-0">No student feedback submitted yet.</p>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% for fb in feedback_entries %}
+<div class="modal fade" id="studentFeedbackModal{{ fb.id }}" tabindex="-1" role="dialog" aria-labelledby="studentFeedbackModalLabel{{ fb.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="studentFeedbackModalLabel{{ fb.id }}">Reply to {{ fb.student.first_name }} {{ fb.student.last_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="feedback_id" value="{{ fb.id }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="font-weight-semibold">Feedback</label>
+                        <div class="p-3 bg-light border rounded">{{ fb.feedback|linebreaksbr }}</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="student-modal-reply-{{ fb.id }}">Reply</label>
+                        <textarea id="student-modal-reply-{{ fb.id }}" name="feedback_reply" class="form-control" rows="4" placeholder="Type your response...">{{ fb.feedback_reply }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Reply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

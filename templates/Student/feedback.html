@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Send Feedback</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Feedback</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Share Your Thoughts</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.feedback.id_for_label }}">Feedback</label>
+                            {{ form.feedback }}
+                            {% if form.feedback.errors %}
+                                <small class="text-danger">{{ form.feedback.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>
+                        {% endif %}
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Previous Feedback</h5>
+                    <span class="badge badge-light">{{ feedback_entries|length }} entries</span>
+                </div>
+                <div class="card-body">
+                    {% if feedback_entries %}
+                        {% for fb in feedback_entries %}
+                            <div class="border rounded p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">Submitted on {{ fb.created_at|date:'M d, Y h:i A' }}</span>
+                                    <span class="badge {% if fb.feedback_reply %}badge-success{% else %}badge-warning{% endif %}">
+                                        {% if fb.feedback_reply %}Replied{% else %}Pending{% endif %}
+                                    </span>
+                                </div>
+                                <p class="mb-2">{{ fb.feedback|linebreaksbr }}</p>
+                                {% if fb.feedback_reply %}
+                                    <div class="bg-light rounded p-2">
+                                        <small class="text-muted d-block">Admin Reply ({{ fb.updated_at|date:'M d, Y h:i A' }})</small>
+                                        <p class="mb-0">{{ fb.feedback_reply|linebreaksbr }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-comment-dots fa-2x mb-3"></i>
+                            <p class="mb-0">No feedback submitted yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

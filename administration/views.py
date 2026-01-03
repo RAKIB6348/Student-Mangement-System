@@ -11,7 +11,7 @@ from django.http import HttpResponseForbidden
 from .models import AdminProfile
 from account.models import User
 
-from student.models import StudentInfo, StudentNotification
+from student.models import StudentInfo, StudentNotification, StudentFeedback
 from teacher.models import TeacherInfo, TeacherNotification, TeacherLeave, Feedback
 from academic.models import Subject, Class
 
@@ -409,5 +409,35 @@ def teacher_feedback_admin(request):
     feedback_entries = Feedback.objects.select_related('teacher', 'teacher__user').order_by('-created_at')
 
     return render(request, 'Admin/teacher_feedback.html', {
+        'feedback_entries': feedback_entries,
+    })
+
+
+@login_required
+def student_feedback_admin(request):
+    if request.user.user_type != 'Admin':
+        return HttpResponseForbidden('You do not have permission to view student feedback.')
+
+    if request.method == 'POST':
+        feedback_id = request.POST.get('feedback_id')
+        reply_text = request.POST.get('feedback_reply', '').strip()
+
+        try:
+            feedback_obj = StudentFeedback.objects.get(id=feedback_id)
+        except (StudentFeedback.DoesNotExist, TypeError, ValueError):
+            messages.error(request, 'Feedback entry not found.')
+        else:
+            if not reply_text:
+                messages.error(request, 'Reply cannot be empty.')
+            else:
+                feedback_obj.feedback_reply = reply_text
+                feedback_obj.save(update_fields=['feedback_reply', 'updated_at'])
+                messages.success(request, 'Reply saved successfully.')
+
+        return redirect('student_feedback_admin')
+
+    feedback_entries = StudentFeedback.objects.select_related('student', 'student__user').order_by('-created_at')
+
+    return render(request, 'Admin/student_feedback.html', {
         'feedback_entries': feedback_entries,
     })
