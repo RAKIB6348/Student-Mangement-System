@@ -119,4 +119,23 @@ class TeacherLeave(models.Model):
     
     def __str__(self):
         return f"{self.teacher.first_name} {self.teacher.last_name}"
+    
+
+
+
+ # =================== Teacher Feedback =========================
+
+class Teacher_Feedback(models.Model):
+    teacher_id = models.ForeignKey(TeacherInfo, on_delete=models.CASCADE)
+    feedback = models.TextField()
+    feedback_reply = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Feedback"
+
+
+    def __str__(self):
+        return f"{self.teacher_id.first_name} {self.teacher_id.last_name}"
 
