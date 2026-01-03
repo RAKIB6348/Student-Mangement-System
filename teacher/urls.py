@@ -12,4 +12,7 @@ urlpatterns = [
     
     path('notifications/', teacher_notification, name='teacher_notification'),
     path('apply-leave/', apply_leave, name='apply_leave'),
+
+    path('feedback/', teacher_feedback, name='teacher_feedback'),
+
 ]

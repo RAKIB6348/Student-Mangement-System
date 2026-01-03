@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import TeacherLeave
+from .models import TeacherLeave, Feedback
 
 
 class TeacherLeaveForm(forms.ModelForm):
@@ -36,3 +36,18 @@ class TeacherLeaveForm(forms.ModelForm):
             raise forms.ValidationError("Start date cannot be later than end date.")
 
         return cleaned_data
+
+
+class TeacherFeedbackForm(forms.ModelForm):
+    class Meta:
+        model = Feedback
+        fields = ["feedback"]
+        widgets = {
+            "feedback": forms.Textarea(
+                attrs={
+                    "rows": 4,
+                    "class": "form-control",
+                    "placeholder": "Share your feedback or concern...",
+                }
+            )
+        }

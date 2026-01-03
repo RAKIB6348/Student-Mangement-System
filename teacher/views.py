@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import TeacherInfo, TeacherNotification, TeacherLeave
+from django.http import HttpResponseForbidden
+from .models import TeacherInfo, TeacherNotification, TeacherLeave, Feedback
 from account.models import User
 import secrets
 import string
 from django.views.decorators.http import require_http_methods
 
-from .forms import TeacherLeaveForm
+from .forms import TeacherLeaveForm, TeacherFeedbackForm
 
 
 # Create your views here.
@@ -259,4 +260,34 @@ def apply_leave(request):
     return render(request, 'Teacher/apply_leave.html', {
         'form': form,
         'leaves': leaves,
+    })
+
+
+
+# ======================== feedback ========================
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def teacher_feedback(request):
+    if request.user.user_type != 'Teacher':
+        return HttpResponseForbidden('Only teachers can access feedback.')
+
+    teacher = get_object_or_404(TeacherInfo, user=request.user)
+    feedback_entries = Feedback.objects.filter(teacher=teacher)
+
+    if request.method == 'POST':
+        form = TeacherFeedbackForm(request.POST)
+        if form.is_valid():
+            feedback = form.save(commit=False)
+            feedback.teacher = teacher
+            feedback.save()
+            messages.success(request, 'Feedback submitted successfully.')
+            return redirect('teacher_feedback')
+    else:
+        form = TeacherFeedbackForm()
+
+    return render(request, 'Teacher/feedback.html', {
+        'form': form,
+        'feedback_entries': feedback_entries,
     })
