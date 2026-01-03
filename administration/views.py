@@ -11,7 +11,7 @@ from django.http import HttpResponseForbidden
 from .models import AdminProfile
 from account.models import User
 
-from student.models import StudentInfo
+from student.models import StudentInfo, StudentNotification
 from teacher.models import TeacherInfo, TeacherNotification, TeacherLeave, Feedback
 from academic.models import Subject, Class
 
@@ -299,6 +299,53 @@ def view_teacher_notifications(request):
     }
 
     return render(request, 'Admin/view_teacher_notifications.html', context)
+
+
+def send_student_notification(request):
+    if request.method == 'POST':
+        try:
+            student_id = request.POST.get('student_id')
+            subject = request.POST.get('subject')
+            message = request.POST.get('message')
+
+            if not student_id or not subject or not message:
+                messages.error(request, 'All fields are required!')
+            else:
+                student = get_object_or_404(StudentInfo, id=student_id)
+
+                StudentNotification.objects.create(
+                    student=student,
+                    subject=subject,
+                    message=message
+                )
+
+                messages.success(
+                    request,
+                    f'Notification sent successfully to {student.first_name} {student.last_name}!'
+                )
+
+        except Exception as e:
+            messages.error(request, f'Error sending notification: {str(e)}')
+
+        return redirect('send_student_notification')
+
+    students = StudentInfo.objects.all()
+
+    context = {
+        'students': students,
+    }
+
+    return render(request, 'Admin/send_student_notification.html', context)
+
+
+def view_student_notifications(request):
+    notifications = StudentNotification.objects.all().select_related('student').order_by('-created_at')
+
+    context = {
+        'notifications': notifications,
+    }
+
+    return render(request, 'Admin/view_student_notifications.html', context)
 
 
 @login_required

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import StudentInfo
+from .models import StudentInfo, StudentNotification
 from account.models import User
 from academic.models import Session, Class, Section
 import secrets
@@ -288,3 +288,13 @@ def student_delete(request, id):
         messages.error(request, f'Error deleting student: {str(e)}')
 
     return redirect('student_list')
+
+
+@login_required
+def student_notification(request):
+    student = get_object_or_404(StudentInfo, user=request.user)
+    notifications = StudentNotification.objects.filter(student=student).order_by('-created_at')
+
+    return render(request, 'Student/notifications.html', {
+        'notifications': notifications,
+    })

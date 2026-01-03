@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content container-fluid">
+
+    {% if messages %}
+        <div class="row">
+            <div class="col-12">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                        <strong>
+                            {% if message.tags == 'success' %}
+                                <i class="fas fa-check-circle"></i> Success!
+                            {% elif message.tags == 'error' %}
+                                <i class="fas fa-exclamation-circle"></i> Error!
+                            {% elif message.tags == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i> Warning!
+                            {% else %}
+                                <i class="fas fa-info-circle"></i> Info!
+                            {% endif %}
+                        </strong> {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title">Send Student Notification</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_home_page' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Send Student Notification</li>
+                </ul>
+            </div>
+            <div class="col-auto text-right float-right ml-auto">
+                <a href="{% url 'view_student_notifications' %}" class="btn btn-primary mr-2">
+                    <i class="fas fa-bell mr-1"></i> View All Notifications
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card card-table">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-center mb-0 datatable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Class</th>
+                                    <th>Email</th>
+                                    <th class="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ student.first_name }} {{ student.last_name }}</td>
+                                        <td>{{ student.klass.name|default:"N/A" }}</td>
+                                        <td>{{ student.email }}</td>
+                                        <td class="text-right">
+                                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#studentNotificationModal{{ student.id }}">
+                                                Send Notification
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for student in students %}
+<div class="modal fade" id="studentNotificationModal{{ student.id }}" tabindex="-1" role="dialog" aria-labelledby="studentNotificationModalTitle{{ student.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="studentNotificationModalTitle{{ student.id }}">Send Notification To {{ student.first_name }} {{ student.last_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'send_student_notification' %}">
+                {% csrf_token %}
+                <input type="hidden" name="student_id" value="{{ student.id }}">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="student-notification-subject-{{ student.id }}">Subject</label>
+                        <input type="text" class="form-control" id="student-notification-subject-{{ student.id }}" name="subject" placeholder="Enter subject" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="student-notification-message-{{ student.id }}">Message</label>
+                        <textarea class="form-control" id="student-notification-message-{{ student.id }}" name="message" rows="4" placeholder="Write notification message" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Send Notification</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+    {% if messages %}
+        $('.modal').modal('hide');
+        window.scrollTo(0, 0);
+    {% endif %}
+</script>
+{% endblock %}

@@ -109,6 +109,7 @@
                         <a href="#"><i class="fas fa-calendar-check"></i> <span>View Attendance</span></a>
                     </li>
 
+                    <li class="menu-title"><span>Feedback Management</span></li>
                     <li class="{% active_link 'teacher_feedback_admin' 'active' %}">
                         <a href="{% url 'teacher_feedback_admin' %}"><i class="fas fa-comments"></i> <span>Teacher Feedback</span></a>
                     </li>
@@ -116,9 +117,18 @@
                         <a href="#"><i class="fas fa-user-graduate"></i> <span>Student Feedback</span></a>
                     </li>
 
-                    <li class="menu-title"><span>Feedback Management</span></li>
+                    <li class="menu-title"><span>Notification Management</span></li>
                     <li class="{% active_link 'send_teacher_notification' 'active' %}">
                         <a href="{% url 'send_teacher_notification' %}"><i class="fas fa-comments"></i> <span>Send Teacher Notification</span></a>
+                    </li>
+                    <li class="{% active_link 'view_teacher_notifications' 'active' %}">
+                        <a href="{% url 'view_teacher_notifications' %}"><i class="fas fa-list"></i> <span>Teacher Notifications</span></a>
+                    </li>
+                    <li class="{% active_link 'send_student_notification' 'active' %}">
+                        <a href="{% url 'send_student_notification' %}"><i class="fas fa-paper-plane"></i> <span>Send Student Notification</span></a>
+                    </li>
+                    <li class="{% active_link 'view_student_notifications' 'active' %}">
+                        <a href="{% url 'view_student_notifications' %}"><i class="fas fa-users"></i> <span>Student Notifications</span></a>
                     </li>
 
                     <!-- Leave Management -->

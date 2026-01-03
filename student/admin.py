@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import StudentInfo
+from .models import StudentInfo, StudentNotification
 
 
 @admin.register(StudentInfo)
@@ -70,3 +70,10 @@ class StudentInfoAdmin(admin.ModelAdmin):
             "fields": ("created_at", "updated_at")
         }),
     )
+
+
+@admin.register(StudentNotification)
+class StudentNotificationAdmin(admin.ModelAdmin):
+    list_display = ("student", "subject", "created_at")
+    search_fields = ("student__first_name", "student__last_name", "subject")
+    autocomplete_fields = ("student",)

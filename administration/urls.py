@@ -12,6 +12,8 @@ urlpatterns = [
 
     path('send-teacher-notification/', send_teacher_notification, name='send_teacher_notification'),
     path('view-teacher-notifications/', view_teacher_notifications, name='view_teacher_notifications'),
+    path('send-student-notification/', send_student_notification, name='send_student_notification'),
+    path('view-student-notifications/', view_student_notifications, name='view_student_notifications'),
     path('teacher-leave/', teacher_leave, name='teacher_leave'),
     path('teacher-feedback/', teacher_feedback_admin, name='teacher_feedback_admin'),
 ]

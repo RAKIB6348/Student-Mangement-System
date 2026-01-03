@@ -189,3 +189,21 @@ class StudentInfo(models.Model):
         verbose_name = "Student Info"
         verbose_name_plural = "Student"
         ordering = ["session", "klass", "section", "roll_no"]
+
+
+class StudentNotification(models.Model):
+    student = models.ForeignKey(
+        StudentInfo,
+        on_delete=models.CASCADE,
+        related_name="notifications"
+    )
+    subject = models.CharField(max_length=250, blank=True, null=True)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Student Notifications"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Notification for {self.student.first_name} {self.student.last_name}"
