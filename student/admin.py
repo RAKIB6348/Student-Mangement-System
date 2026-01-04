@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import StudentInfo, StudentNotification, StudentFeedback
+from .models import StudentInfo, StudentNotification, StudentFeedback, StudentLeave
 
 
 @admin.register(StudentInfo)
@@ -89,3 +89,11 @@ class StudentFeedbackAdmin(admin.ModelAdmin):
         return bool(obj.feedback_reply)
 
     has_reply.boolean = True
+
+
+@admin.register(StudentLeave)
+class StudentLeaveAdmin(admin.ModelAdmin):
+    list_display = ("student", "leave_type", "start_date", "end_date", "status", "created_at")
+    list_filter = ("leave_type", "status")
+    search_fields = ("student__first_name", "student__last_name", "reason")
+    autocomplete_fields = ("student",)

@@ -226,3 +226,35 @@ class StudentFeedback(models.Model):
 
     def __str__(self):
         return f"Feedback from {self.student.first_name} {self.student.last_name}"
+
+
+class StudentLeave(models.Model):
+    LEAVE_TYPE = (
+        ("Casual", "Casual"),
+        ("Sick", "Sick"),
+        ("Annual", "Annual"),
+    )
+
+    STATUS = (
+        ("Pending", "Pending"),
+        ("Approved", "Approved"),
+        ("Rejected", "Rejected"),
+    )
+
+    student = models.ForeignKey(
+        StudentInfo,
+        on_delete=models.CASCADE,
+        related_name="leaves"
+    )
+    leave_type = models.CharField(max_length=20, choices=LEAVE_TYPE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    reason = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS, default="Pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.student.first_name} {self.student.last_name}"

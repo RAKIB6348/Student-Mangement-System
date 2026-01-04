@@ -2,13 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponseForbidden
-from .models import StudentInfo, StudentNotification, StudentFeedback
+from .models import StudentInfo, StudentNotification, StudentFeedback, StudentLeave
 from account.models import User
 from academic.models import Session, Class, Section
 import secrets
 import string
 
-from .forms import StudentFeedbackForm
+from .forms import StudentFeedbackForm, StudentLeaveForm
 
 # Create your views here.
 def student_list(request):
@@ -328,4 +328,29 @@ def student_feedback(request):
     return render(request, 'Student/feedback.html', {
         'form': form,
         'feedback_entries': feedback_entries,
+    })
+
+
+@login_required
+def student_apply_leave(request):
+    if request.user.user_type != 'Student':
+        return HttpResponseForbidden('Only students can apply for leave.')
+
+    student = get_object_or_404(StudentInfo, user=request.user)
+    leaves = StudentLeave.objects.filter(student=student).order_by('-created_at')
+
+    if request.method == 'POST':
+        form = StudentLeaveForm(request.POST)
+        if form.is_valid():
+            leave = form.save(commit=False)
+            leave.student = student
+            leave.save()
+            messages.success(request, 'Leave request submitted successfully.')
+            return redirect('student_apply_leave')
+    else:
+        form = StudentLeaveForm()
+
+    return render(request, 'Student/apply_leave.html', {
+        'form': form,
+        'leaves': leaves,
     })

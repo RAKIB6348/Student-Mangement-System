@@ -11,7 +11,7 @@ from django.http import HttpResponseForbidden
 from .models import AdminProfile
 from account.models import User
 
-from student.models import StudentInfo, StudentNotification, StudentFeedback
+from student.models import StudentInfo, StudentNotification, StudentFeedback, StudentLeave
 from teacher.models import TeacherInfo, TeacherNotification, TeacherLeave, Feedback
 from academic.models import Subject, Class
 
@@ -380,6 +380,41 @@ def teacher_leave(request):
     return render(request, 'Admin/teacher_leave.html', {
         'leaves': leaves,
         'status_choices': TeacherLeave.STATUS,
+    })
+
+
+@login_required
+def student_leave(request):
+    if request.user.user_type != 'Admin':
+        return HttpResponseForbidden('You do not have permission to view student leaves.')
+
+    leaves = StudentLeave.objects.select_related('student').order_by('-created_at')
+
+    if request.method == 'POST':
+        leave_id = request.POST.get('leave_id')
+        action = request.POST.get('status')
+
+        try:
+            if not leave_id or not action:
+                raise ValueError('Leave and status are required.')
+
+            leave = StudentLeave.objects.get(id=leave_id)
+            if action not in dict(StudentLeave.STATUS):
+                raise ValueError('Invalid status selected.')
+
+            leave.status = action
+            leave.save(update_fields=['status'])
+            messages.success(request, f'Leave status updated to {action}.')
+        except StudentLeave.DoesNotExist:
+            messages.error(request, 'Leave request not found.')
+        except Exception as exc:
+            messages.error(request, f'Unable to update leave: {exc}')
+
+        return redirect('student_leave')
+
+    return render(request, 'Admin/student_leave.html', {
+        'leaves': leaves,
+        'status_choices': StudentLeave.STATUS,
     })
 
 

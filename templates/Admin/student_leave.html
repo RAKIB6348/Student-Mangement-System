@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3 class="page-title">Student Leave Requests</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_home_page' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Leave Management</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Pending & Processed Requests</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Leave Type</th>
+                            <th>Duration</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in leaves %}
+                        <tr>
+                            <td>
+                                <strong>{{ leave.student.first_name }} {{ leave.student.last_name }}</strong><br>
+                                <small class="text-muted">{{ leave.student.student_user_id }}</small>
+                            </td>
+                            <td>{{ leave.leave_type }}</td>
+                            <td>{{ leave.start_date }} - {{ leave.end_date }}</td>
+                            <td>{{ leave.reason|linebreaksbr }}</td>
+                            <td>
+                                <span class="badge {% if leave.status == 'Approved' %}badge-success{% elif leave.status == 'Rejected' %}badge-danger{% else %}badge-warning{% endif %}">
+                                    {{ leave.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="leave_id" value="{{ leave.id }}">
+                                    <div class="btn-group" role="group">
+                                        <button type="submit" name="status" value="Approved"
+                                            class="btn btn-sm mr-2 {% if leave.status == 'Approved' %}btn-success{% else %}btn-outline-success{% endif %}"
+                                            style="border-radius: 6px;">
+                                            Approve
+                                        </button>
+                                        <button type="submit" name="status" value="Rejected"
+                                            class="btn btn-sm mr-2 {% if leave.status == 'Rejected' %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                                            style="border-radius: 6px;">
+                                            Reject
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No leave requests submitted yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3 class="page-title">Apply for Leave</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Leave</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">New Leave Request</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.leave_type.id_for_label }}">Leave Type</label>
+                            {{ form.leave_type }}
+                            {% if form.leave_type.errors %}
+                                <small class="text-danger">{{ form.leave_type.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.start_date.id_for_label }}">Start Date</label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}
+                                <small class="text-danger">{{ form.start_date.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.end_date.id_for_label }}">End Date</label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}
+                                <small class="text-danger">{{ form.end_date.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.reason.id_for_label }}">Reason</label>
+                            {{ form.reason }}
+                            {% if form.reason.errors %}
+                                <small class="text-danger">{{ form.reason.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">My Leave History</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Leave Type</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th>Submitted</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leave in leaves %}
+                                    <tr>
+                                        <td>{{ leave.leave_type }}</td>
+                                        <td>{{ leave.start_date }} - {{ leave.end_date }}</td>
+                                        <td>
+                                            <span class="badge {% if leave.status == 'Approved' %}badge-success{% elif leave.status == 'Rejected' %}badge-danger{% else %}badge-warning{% endif %}">
+                                                {{ leave.status }}
+                                            </span>
+                                        </td>
+                                        <td>{{ leave.created_at|date:'M d, Y' }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No leave requests yet.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
