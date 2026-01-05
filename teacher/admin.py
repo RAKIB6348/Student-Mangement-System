@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import TeacherInfo, TeacherNotification, TeacherLeave, Feedback
+from .models import (
+    TeacherInfo,
+    TeacherNotification,
+    TeacherLeave,
+    Feedback,
+    Attendance,
+    AttendanceRecord,
+)
 
 
 @admin.register(TeacherInfo)
@@ -57,3 +64,25 @@ class TeacherInfoAdmin(admin.ModelAdmin):
 admin.site.register(TeacherNotification)
 admin.site.register(TeacherLeave)
 admin.site.register(Feedback)
+
+
+class AttendanceRecordInline(admin.TabularInline):
+    model = AttendanceRecord
+    extra = 0
+    readonly_fields = ('student', 'status', 'marked_at')
+
+
+@admin.register(Attendance)
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ('date', 'teacher', 'klass', 'section', 'session', 'created_at')
+    list_filter = ('date', 'klass', 'section', 'session')
+    search_fields = ('teacher__first_name', 'teacher__last_name', 'klass__name')
+    inlines = [AttendanceRecordInline]
+    readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(AttendanceRecord)
+class AttendanceRecordAdmin(admin.ModelAdmin):
+    list_display = ('attendance', 'student', 'status', 'marked_at')
+    list_filter = ('status',)
+    search_fields = ('student__first_name', 'student__last_name', 'attendance__klass__name')

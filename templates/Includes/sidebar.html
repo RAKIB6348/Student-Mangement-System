@@ -159,10 +159,10 @@
                     
                     <li class="menu-title"><span>Attendance</span></li>
                     <li class="{% active_link 'take_attendance' 'active' %}">
-                        <a href="#"><i class="fas fa-user-check"></i> <span>Take Attendance</span></a>
+                        <a href="{% url 'take_attendance' %}"><i class="fas fa-user-check"></i> <span>Take Attendance</span></a>
                     </li>
                     <li class="{% active_link 'view_update_attendance' 'active' %}">
-                        <a href="#"><i class="fas fa-calendar-alt"></i> <span>View and Update Attendance</span></a>
+                        <a href="{% url 'view_update_attendance' %}"><i class="fas fa-calendar-alt"></i> <span>View and Update Attendance</span></a>
                     </li>
                     
                     <li class="menu-title"><span>Academics</span></li>

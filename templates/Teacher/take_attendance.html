@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title mb-2">Take Attendance</h3>
+                <ul class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Attendance</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0">Select Class & Date</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get">
+                        <div class="form-group">
+                            <label class="form-label">Class <span class="text-danger">*</span></label>
+                            <select name="klass" class="form-control" required>
+                                <option value="">Select class</option>
+                                {% for klass in classes %}
+                                <option value="{{ klass.id }}" {% if klass.id == selected_class_id %}selected{% endif %}>
+                                    {{ klass.name }} ({{ klass.class_code }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Section</label>
+                            <select name="section" class="form-control">
+                                <option value="">All sections</option>
+                                {% for section in sections %}
+                                <option value="{{ section.id }}" {% if section.id == selected_section_id %}selected{% endif %}>
+                                    {{ section.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Session <span class="text-danger">*</span></label>
+                            <select name="session" class="form-control" required>
+                                <option value="">Select session</option>
+                                {% for sess in sessions %}
+                                <option value="{{ sess.id }}" {% if sess.id == selected_session_id %}selected{% endif %}>
+                                    {{ sess.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" name="date" value="{{ selected_date }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-users-cog mr-2"></i>Load Students
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% if selected_class %}
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted">Current Selection</h6>
+                    <p class="mb-2">
+                        <strong>Class:</strong> {{ selected_class.name }}
+                        {% if selected_section %}<br><strong>Section:</strong> {{ selected_section.name }}{% endif %}
+                        <br><strong>Session:</strong> {{ selected_session.name|default:"—" }}
+                        <br><strong>Date:</strong> {{ selected_date }}
+                    </p>
+                    <small class="text-muted">Only students that match the selection will be listed for attendance.</small>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-xl-8">
+            {% if students %}
+            <div class="card shadow-sm">
+                <div class="card-header d-flex flex-column flex-md-row align-items-md-center justify-content-between bg-white border-0">
+                    <div>
+                        <h5 class="mb-1">Students ({{ students|length }})</h5>
+                        <span class="text-muted">Mark each student as Present, Absent or Late.</span>
+                    </div>
+                    <div class="mt-3 mt-md-0">
+                        <button class="btn btn-sm btn-outline-success mr-2" type="button" id="markAllPresent">
+                            <i class="fas fa-check mr-1"></i>Mark all Present
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" type="button" id="markAllAbsent">
+                            <i class="fas fa-times mr-1"></i>Mark all Absent
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="klass" value="{{ selected_class_id|default:'' }}">
+                        <input type="hidden" name="section" value="{{ selected_section_id|default:'' }}">
+                        <input type="hidden" name="session" value="{{ selected_session_id|default:'' }}">
+                        <input type="hidden" name="attendance_date" value="{{ selected_date }}">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Roll</th>
+                                        <th>Name</th>
+                                        <th>Section</th>
+                                        <th>Status</th>
+                                        <th>Remark</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in students %}
+                                    <tr>
+                                        <td>{{ student.roll_no|default:"—" }}</td>
+                                        <td>
+                                            <strong>{{ student.first_name }} {{ student.last_name }}</strong><br>
+                                            <small class="text-muted">{{ student.student_user_id|default:"—" }}</small>
+                                        </td>
+                                        <td>{{ student.section.name|default:"—" }}</td>
+                                        <td>
+                                            <div class="d-flex flex-wrap align-items-center" data-student="{{ student.id }}">
+                                                {% for value,label in status_choices %}
+                                                <div class="form-check form-check-inline mr-3 mb-1">
+                                                    <input class="form-check-input status-radio" type="radio" name="status_{{ student.id }}" value="{{ value }}"
+                                                        {% if student.current_status == value %}checked{% elif not student.current_status and value == 'Present' %}checked{% endif %}>
+                                                    <label class="form-check-label">{{ label }}</label>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" name="remark_{{ student.id }}" placeholder="Optional note" value="{{ student.current_remark|default:'' }}">
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teacher Note</label>
+                            <textarea name="note" rows="2" class="form-control" placeholder="Optional note for this attendance">{{ attendance_note }}</textarea>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save mr-2"></i>Save Attendance
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% elif filter_submitted %}
+            <div class="alert alert-info">
+                No students were found for the selected combination. Please adjust the filters and try again.
+            </div>
+            {% else %}
+            <div class="alert alert-light border">
+                Select a class, section and session to load the student list.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const markAll = (value) => {
+        document.querySelectorAll('.status-radio').forEach(radio => {
+            if (radio.value === value) {
+                radio.checked = true;
+            }
+        });
+    };
+    const presentBtn = document.getElementById('markAllPresent');
+    const absentBtn = document.getElementById('markAllAbsent');
+    if (presentBtn) {
+        presentBtn.addEventListener('click', () => markAll('Present'));
+    }
+    if (absentBtn) {
+        absentBtn.addEventListener('click', () => markAll('Absent'));
+    }
+});
+</script>
+{% endblock %}

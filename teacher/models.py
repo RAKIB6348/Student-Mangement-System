@@ -1,5 +1,7 @@
 from django.db import models
 from account.models import User
+from academic.models import Class, Section, Session
+from student.models import StudentInfo
 
 class TeacherInfo(models.Model):
 
@@ -141,3 +143,89 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"{self.teacher.first_name} {self.teacher.last_name}"
+
+
+class Attendance(models.Model):
+    teacher = models.ForeignKey(
+        TeacherInfo,
+        on_delete=models.CASCADE,
+        related_name="attendance_sessions",
+    )
+    klass = models.ForeignKey(
+        Class,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="attendances",
+    )
+    section = models.ForeignKey(
+        Section,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="attendances",
+    )
+    session = models.ForeignKey(
+        Session,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="attendances",
+    )
+    date = models.DateField()
+    note = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('teacher', 'klass', 'section', 'session', 'date')
+        ordering = ['-date', '-created_at']
+        verbose_name = "Attendance Entry"
+        verbose_name_plural = "Attendance Entries"
+
+    def __str__(self):
+        klass_name = self.klass.name if self.klass else "N/A"
+        return f"{self.date} - {klass_name}"
+
+
+class AttendanceRecord(models.Model):
+    STATUS_PRESENT = "Present"
+    STATUS_ABSENT = "Absent"
+    STATUS_LATE = "Late"
+
+    STATUS_CHOICES = [
+        (STATUS_PRESENT, "Present"),
+        (STATUS_ABSENT, "Absent"),
+        (STATUS_LATE, "Late"),
+    ]
+
+    attendance = models.ForeignKey(
+        Attendance,
+        on_delete=models.CASCADE,
+        related_name="records",
+    )
+    student = models.ForeignKey(
+        StudentInfo,
+        on_delete=models.CASCADE,
+        related_name="attendance_records",
+    )
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default=STATUS_PRESENT,
+    )
+    remark = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    marked_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('attendance', 'student')
+        ordering = ['student__roll_no', 'student__first_name']
+        verbose_name = "Attendance Record"
+        verbose_name_plural = "Attendance Records"
+
+    def __str__(self):
+        return f"{self.student} - {self.attendance.date} ({self.status})"

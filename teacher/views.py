@@ -1,14 +1,37 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.http import HttpResponseForbidden
-from .models import TeacherInfo, TeacherNotification, TeacherLeave, Feedback
-from account.models import User
+from datetime import datetime, date
+from urllib.parse import urlencode
+
 import secrets
 import string
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
-from .forms import TeacherLeaveForm, TeacherFeedbackForm
+from account.models import User
+from academic.models import Class, Section, Session
+from student.models import StudentInfo
+
+from .forms import TeacherFeedbackForm, TeacherLeaveForm
+from .models import (
+    Attendance,
+    AttendanceRecord,
+    Feedback,
+    TeacherInfo,
+    TeacherLeave,
+    TeacherNotification,
+)
+
+
+def _parse_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
 
 # Create your views here.
@@ -131,6 +154,221 @@ def add_teacher(request):
 def teacher_dashboard(request):
 
     return render(request, "Teacher/home.html")
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def take_attendance(request):
+    if request.user.user_type != 'Teacher':
+        return HttpResponseForbidden('Only teachers can take attendance.')
+
+    teacher = get_object_or_404(TeacherInfo, user=request.user)
+    classes = Class.objects.all().order_by('class_code')
+    sections = Section.objects.all().order_by('name')
+    sessions = Session.objects.all().order_by('-start_date')
+
+    selected_class_id = _parse_int(request.GET.get('klass') or request.POST.get('klass'))
+    selected_section_id = _parse_int(request.GET.get('section') or request.POST.get('section'))
+    selected_session_id = _parse_int(request.GET.get('session') or request.POST.get('session'))
+    selected_date = request.GET.get('date') or request.POST.get('attendance_date') or date.today().isoformat()
+
+    try:
+        selected_date_obj = datetime.strptime(selected_date, "%Y-%m-%d").date()
+    except ValueError:
+        selected_date_obj = date.today()
+        selected_date = selected_date_obj.isoformat()
+        messages.error(request, "Invalid date provided. Using today's date instead.")
+
+    filter_ready = bool(selected_class_id and selected_session_id)
+
+    students = []
+    existing_attendance = None
+    attendance_note = ''
+    filter_submitted = False
+
+    def _student_queryset():
+        qs = StudentInfo.objects.filter(
+            klass_id=selected_class_id,
+            session_id=selected_session_id,
+        )
+        if selected_section_id:
+            qs = qs.filter(section_id=selected_section_id)
+        return qs.select_related('klass', 'section').order_by('roll_no', 'first_name', 'last_name')
+
+    if request.method == 'POST':
+        if not filter_ready:
+            messages.error(request, 'Please select both Class and Session before submitting attendance.')
+        else:
+            students_qs = _student_queryset()
+            student_list = list(students_qs)
+            if not student_list:
+                messages.warning(request, 'No students found for the selected filters.')
+            else:
+                note_value = request.POST.get('note', '').strip() or None
+                attendance, _ = Attendance.objects.get_or_create(
+                    teacher=teacher,
+                    klass_id=selected_class_id,
+                    session_id=selected_session_id,
+                    section_id=selected_section_id,
+                    date=selected_date_obj,
+                )
+                if attendance.note != note_value:
+                    attendance.note = note_value
+                    attendance.save(update_fields=['note', 'updated_at'])
+
+                valid_status = {choice[0] for choice in AttendanceRecord.STATUS_CHOICES}
+                records = []
+                for student in student_list:
+                    status = request.POST.get(f'status_{student.id}', AttendanceRecord.STATUS_PRESENT)
+                    if status not in valid_status:
+                        status = AttendanceRecord.STATUS_PRESENT
+                    remark = request.POST.get(f'remark_{student.id}', '').strip() or None
+                    records.append(AttendanceRecord(
+                        attendance=attendance,
+                        student=student,
+                        status=status,
+                        remark=remark,
+                    ))
+
+                with transaction.atomic():
+                    AttendanceRecord.objects.filter(attendance=attendance).delete()
+                    AttendanceRecord.objects.bulk_create(records)
+
+                messages.success(
+                    request,
+                    f"Attendance saved for {selected_date_obj.strftime('%d %b %Y')}."
+                )
+
+                query_params = {
+                    'klass': selected_class_id,
+                    'session': selected_session_id,
+                    'date': selected_date_obj.strftime('%Y-%m-%d'),
+                }
+                if selected_section_id:
+                    query_params['section'] = selected_section_id
+                return redirect(f"{reverse('take_attendance')}?{urlencode(query_params)}")
+
+        # Preserve selections and entered data when errors occur.
+        if filter_ready:
+            students_qs = _student_queryset()
+            students = list(students_qs)
+            status_map = {
+                student.id: request.POST.get(f'status_{student.id}', AttendanceRecord.STATUS_PRESENT)
+                for student in students
+            }
+            remark_map = {
+                student.id: request.POST.get(f'remark_{student.id}', '')
+                for student in students
+            }
+            for student in students:
+                student.current_status = status_map.get(student.id, AttendanceRecord.STATUS_PRESENT)
+                student.current_remark = remark_map.get(student.id, '')
+            attendance_note = request.POST.get('note', '').strip()
+            filter_submitted = True
+
+    else:  # GET
+        if filter_ready:
+            students_qs = _student_queryset()
+            students = list(students_qs)
+            existing_attendance = Attendance.objects.filter(
+                teacher=teacher,
+                klass_id=selected_class_id,
+                session_id=selected_session_id,
+                section_id=selected_section_id,
+                date=selected_date_obj,
+            ).prefetch_related('records__student').first()
+
+            if existing_attendance:
+                status_map = {
+                    record.student_id: record.status
+                    for record in existing_attendance.records.all()
+                }
+                remark_map = {
+                    record.student_id: record.remark or ''
+                    for record in existing_attendance.records.all()
+                }
+                attendance_note = existing_attendance.note or ''
+            else:
+                status_map = {}
+                remark_map = {}
+
+            for student in students:
+                student.current_status = status_map.get(student.id, AttendanceRecord.STATUS_PRESENT)
+                student.current_remark = remark_map.get(student.id, '')
+            filter_submitted = True
+
+    selected_class = Class.objects.filter(id=selected_class_id).first() if selected_class_id else None
+    selected_section = Section.objects.filter(id=selected_section_id).first() if selected_section_id else None
+    selected_session = Session.objects.filter(id=selected_session_id).first() if selected_session_id else None
+
+    context = {
+        'classes': classes,
+        'sections': sections,
+        'sessions': sessions,
+        'students': students,
+        'selected_class_id': selected_class_id,
+        'selected_section_id': selected_section_id,
+        'selected_session_id': selected_session_id,
+        'selected_date': selected_date,
+        'attendance_note': attendance_note,
+        'filter_submitted': filter_submitted,
+        'selected_class': selected_class,
+        'selected_section': selected_section,
+        'selected_session': selected_session,
+        'status_choices': AttendanceRecord.STATUS_CHOICES,
+    }
+    return render(request, 'Teacher/take_attendance.html', context)
+
+
+@login_required
+def view_update_attendance(request):
+    if request.user.user_type != 'Teacher':
+        return HttpResponseForbidden('Only teachers can view attendance history.')
+
+    teacher = get_object_or_404(TeacherInfo, user=request.user)
+    classes = Class.objects.all().order_by('class_code')
+    sessions = Session.objects.all().order_by('-start_date')
+
+    selected_class_id = _parse_int(request.GET.get('class'))
+    selected_session_id = _parse_int(request.GET.get('session'))
+    selected_date = request.GET.get('date')
+
+    attendances = (
+        Attendance.objects.filter(teacher=teacher)
+        .select_related('klass', 'section', 'session')
+        .prefetch_related('records')
+        .order_by('-date', '-created_at')
+    )
+
+    if selected_class_id:
+        attendances = attendances.filter(klass_id=selected_class_id)
+    if selected_session_id:
+        attendances = attendances.filter(session_id=selected_session_id)
+    if selected_date:
+        try:
+            filter_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
+            attendances = attendances.filter(date=filter_date)
+        except ValueError:
+            messages.error(request, 'Invalid date filter. Showing all records.')
+            selected_date = None
+
+    attendance_list = list(attendances)
+    for attendance in attendance_list:
+        records = list(attendance.records.all())
+        attendance.summary_total = len(records)
+        attendance.summary_present = sum(1 for record in records if record.status == AttendanceRecord.STATUS_PRESENT)
+        attendance.summary_absent = sum(1 for record in records if record.status == AttendanceRecord.STATUS_ABSENT)
+        attendance.summary_late = sum(1 for record in records if record.status == AttendanceRecord.STATUS_LATE)
+
+    context = {
+        'classes': classes,
+        'sessions': sessions,
+        'attendances': attendance_list,
+        'selected_class_id': selected_class_id,
+        'selected_session_id': selected_session_id,
+        'selected_date': selected_date,
+    }
+    return render(request, 'Teacher/view_attendance.html', context)
 
 
 def teacher_edit(request, id):
