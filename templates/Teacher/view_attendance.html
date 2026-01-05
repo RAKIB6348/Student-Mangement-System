@@ -44,6 +44,17 @@
                     </select>
                 </div>
                 <div class="form-group col-md-3">
+                    <label class="form-label">Subject</label>
+                    <select name="subject" class="form-control">
+                        <option value="">All subjects</option>
+                        {% for subj in subjects %}
+                        <option value="{{ subj.id }}" {% if subj.id == selected_subject_id %}selected{% endif %}>
+                            {{ subj.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
                     <label class="form-label">Date</label>
                     <input type="date" class="form-control" name="date" value="{{ selected_date|default:'' }}">
                 </div>
@@ -66,6 +77,7 @@
                             <th>Date</th>
                             <th>Class</th>
                             <th>Session</th>
+                            <th>Subject</th>
                             <th>Total</th>
                             <th>Present</th>
                             <th>Absent</th>
@@ -84,13 +96,14 @@
                                 {% endif %}
                             </td>
                             <td>{{ attendance.session.name|default:"—" }}</td>
+                            <td>{{ attendance.subject.name|default:"—" }}</td>
                             <td>{{ attendance.summary_total }}</td>
                             <td class="text-success"><strong>{{ attendance.summary_present }}</strong></td>
                             <td class="text-danger"><strong>{{ attendance.summary_absent }}</strong></td>
                             <td class="text-warning"><strong>{{ attendance.summary_late }}</strong></td>
                             <td>
-                                {% if attendance.klass and attendance.session %}
-                                <a class="btn btn-sm btn-outline-primary" href="{% url 'take_attendance' %}?klass={{ attendance.klass.id }}{% if attendance.section %}&section={{ attendance.section.id }}{% endif %}&session={{ attendance.session.id }}&date={{ attendance.date|date:'Y-m-d' }}">
+                                {% if attendance.klass and attendance.session and attendance.subject %}
+                                <a class="btn btn-sm btn-outline-primary" href="{% url 'take_attendance' %}?klass={{ attendance.klass.id }}{% if attendance.section %}&section={{ attendance.section.id }}{% endif %}&session={{ attendance.session.id }}&subject={{ attendance.subject.id }}&date={{ attendance.date|date:'Y-m-d' }}">
                                     <i class="fas fa-pen mr-1"></i>Edit
                                 </a>
                                 {% else %}

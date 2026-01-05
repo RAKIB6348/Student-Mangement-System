@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from account.models import User
-from academic.models import Class, Section, Session
+from academic.models import Class, Section, Session, Subject
 from student.models import StudentInfo
 
 from .forms import TeacherFeedbackForm, TeacherLeaveForm
@@ -166,10 +166,12 @@ def take_attendance(request):
     classes = Class.objects.all().order_by('class_code')
     sections = Section.objects.all().order_by('name')
     sessions = Session.objects.all().order_by('-start_date')
+    subjects = Subject.objects.all().order_by('name')
 
     selected_class_id = _parse_int(request.GET.get('klass') or request.POST.get('klass'))
     selected_section_id = _parse_int(request.GET.get('section') or request.POST.get('section'))
     selected_session_id = _parse_int(request.GET.get('session') or request.POST.get('session'))
+    selected_subject_id = _parse_int(request.GET.get('subject') or request.POST.get('subject'))
     selected_date = request.GET.get('date') or request.POST.get('attendance_date') or date.today().isoformat()
 
     try:
@@ -179,7 +181,7 @@ def take_attendance(request):
         selected_date = selected_date_obj.isoformat()
         messages.error(request, "Invalid date provided. Using today's date instead.")
 
-    filter_ready = bool(selected_class_id and selected_session_id)
+    filter_ready = bool(selected_class_id and selected_session_id and selected_subject_id)
 
     students = []
     existing_attendance = None
@@ -197,7 +199,7 @@ def take_attendance(request):
 
     if request.method == 'POST':
         if not filter_ready:
-            messages.error(request, 'Please select both Class and Session before submitting attendance.')
+            messages.error(request, 'Class, Session, and Subject are required before submitting attendance.')
         else:
             students_qs = _student_queryset()
             student_list = list(students_qs)
@@ -210,6 +212,7 @@ def take_attendance(request):
                     klass_id=selected_class_id,
                     session_id=selected_session_id,
                     section_id=selected_section_id,
+                    subject_id=selected_subject_id,
                     date=selected_date_obj,
                 )
                 if attendance.note != note_value:
@@ -242,6 +245,7 @@ def take_attendance(request):
                 query_params = {
                     'klass': selected_class_id,
                     'session': selected_session_id,
+                    'subject': selected_subject_id,
                     'date': selected_date_obj.strftime('%Y-%m-%d'),
                 }
                 if selected_section_id:
@@ -275,6 +279,7 @@ def take_attendance(request):
                 klass_id=selected_class_id,
                 session_id=selected_session_id,
                 section_id=selected_section_id,
+                subject_id=selected_subject_id,
                 date=selected_date_obj,
             ).prefetch_related('records__student').first()
 
@@ -300,21 +305,25 @@ def take_attendance(request):
     selected_class = Class.objects.filter(id=selected_class_id).first() if selected_class_id else None
     selected_section = Section.objects.filter(id=selected_section_id).first() if selected_section_id else None
     selected_session = Session.objects.filter(id=selected_session_id).first() if selected_session_id else None
+    selected_subject = Subject.objects.filter(id=selected_subject_id).first() if selected_subject_id else None
 
     context = {
         'classes': classes,
         'sections': sections,
         'sessions': sessions,
+        'subjects': subjects,
         'students': students,
         'selected_class_id': selected_class_id,
         'selected_section_id': selected_section_id,
         'selected_session_id': selected_session_id,
+        'selected_subject_id': selected_subject_id,
         'selected_date': selected_date,
         'attendance_note': attendance_note,
         'filter_submitted': filter_submitted,
         'selected_class': selected_class,
         'selected_section': selected_section,
         'selected_session': selected_session,
+        'selected_subject': selected_subject,
         'status_choices': AttendanceRecord.STATUS_CHOICES,
     }
     return render(request, 'Teacher/take_attendance.html', context)
@@ -328,9 +337,11 @@ def view_update_attendance(request):
     teacher = get_object_or_404(TeacherInfo, user=request.user)
     classes = Class.objects.all().order_by('class_code')
     sessions = Session.objects.all().order_by('-start_date')
+    subjects = Subject.objects.all().order_by('name')
 
     selected_class_id = _parse_int(request.GET.get('class'))
     selected_session_id = _parse_int(request.GET.get('session'))
+    selected_subject_id = _parse_int(request.GET.get('subject'))
     selected_date = request.GET.get('date')
 
     attendances = (
@@ -344,6 +355,8 @@ def view_update_attendance(request):
         attendances = attendances.filter(klass_id=selected_class_id)
     if selected_session_id:
         attendances = attendances.filter(session_id=selected_session_id)
+    if selected_subject_id:
+        attendances = attendances.filter(subject_id=selected_subject_id)
     if selected_date:
         try:
             filter_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
@@ -363,9 +376,11 @@ def view_update_attendance(request):
     context = {
         'classes': classes,
         'sessions': sessions,
+        'subjects': subjects,
         'attendances': attendance_list,
         'selected_class_id': selected_class_id,
         'selected_session_id': selected_session_id,
+        'selected_subject_id': selected_subject_id,
         'selected_date': selected_date,
     }
     return render(request, 'Teacher/view_attendance.html', context)

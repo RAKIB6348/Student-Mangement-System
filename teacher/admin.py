@@ -74,9 +74,9 @@ class AttendanceRecordInline(admin.TabularInline):
 
 @admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):
-    list_display = ('date', 'teacher', 'klass', 'section', 'session', 'created_at')
-    list_filter = ('date', 'klass', 'section', 'session')
-    search_fields = ('teacher__first_name', 'teacher__last_name', 'klass__name')
+    list_display = ('date', 'teacher', 'klass', 'section', 'session', 'subject', 'created_at')
+    list_filter = ('date', 'klass', 'section', 'session', 'subject')
+    search_fields = ('teacher__first_name', 'teacher__last_name', 'klass__name', 'subject__name')
     inlines = [AttendanceRecordInline]
     readonly_fields = ('created_at', 'updated_at')
 

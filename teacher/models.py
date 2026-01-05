@@ -1,6 +1,6 @@
 from django.db import models
 from account.models import User
-from academic.models import Class, Section, Session
+from academic.models import Class, Section, Session, Subject
 from student.models import StudentInfo
 
 class TeacherInfo(models.Model):
@@ -172,20 +172,28 @@ class Attendance(models.Model):
         blank=True,
         related_name="attendances",
     )
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="attendances",
+    )
     date = models.DateField()
     note = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('teacher', 'klass', 'section', 'session', 'date')
+        unique_together = ('teacher', 'klass', 'section', 'session', 'subject', 'date')
         ordering = ['-date', '-created_at']
         verbose_name = "Attendance Entry"
         verbose_name_plural = "Attendance Entries"
 
     def __str__(self):
         klass_name = self.klass.name if self.klass else "N/A"
-        return f"{self.date} - {klass_name}"
+        subject_name = self.subject.name if self.subject else "No Subject"
+        return f"{self.date} - {klass_name} ({subject_name})"
 
 
 class AttendanceRecord(models.Model):

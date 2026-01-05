@@ -57,6 +57,17 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Subject <span class="text-danger">*</span></label>
+                            <select name="subject" class="form-control" required>
+                                <option value="">Select subject</option>
+                                {% for subj in subjects %}
+                                <option value="{{ subj.id }}" {% if subj.id == selected_subject_id %}selected{% endif %}>
+                                    {{ subj.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label class="form-label">Date</label>
                             <input type="date" class="form-control" name="date" value="{{ selected_date }}">
                         </div>
@@ -74,6 +85,7 @@
                         <strong>Class:</strong> {{ selected_class.name }}
                         {% if selected_section %}<br><strong>Section:</strong> {{ selected_section.name }}{% endif %}
                         <br><strong>Session:</strong> {{ selected_session.name|default:"—" }}
+                        <br><strong>Subject:</strong> {{ selected_subject.name|default:"—" }}
                         <br><strong>Date:</strong> {{ selected_date }}
                     </p>
                     <small class="text-muted">Only students that match the selection will be listed for attendance.</small>
@@ -105,6 +117,7 @@
                         <input type="hidden" name="klass" value="{{ selected_class_id|default:'' }}">
                         <input type="hidden" name="section" value="{{ selected_section_id|default:'' }}">
                         <input type="hidden" name="session" value="{{ selected_session_id|default:'' }}">
+                        <input type="hidden" name="subject" value="{{ selected_subject_id|default:'' }}">
                         <input type="hidden" name="attendance_date" value="{{ selected_date }}">
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle">
