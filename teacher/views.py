@@ -6,7 +6,7 @@ import string
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -14,9 +14,9 @@ from django.views.decorators.http import require_http_methods
 
 from account.models import User
 from academic.models import Class, Section, Session, Subject
-from student.models import StudentInfo
+from student.models import StudentInfo, StudentResult
 
-from .forms import TeacherFeedbackForm, TeacherLeaveForm
+from .forms import TeacherFeedbackForm, TeacherLeaveForm, StudentResultForm
 from .models import (
     Attendance,
     AttendanceRecord,
@@ -544,3 +544,39 @@ def teacher_feedback(request):
         'form': form,
         'feedback_entries': feedback_entries,
     })
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def add_result(request):
+    if request.user.user_type != 'Teacher':
+        return HttpResponseForbidden('Only teachers can add results.')
+
+    teacher = get_object_or_404(TeacherInfo, user=request.user)
+    form = StudentResultForm(request.POST or None)
+    recent_results = (
+        StudentResult.objects.select_related('student', 'subject', 'session')
+        .order_by('-recorded_at')[:10]
+    )
+
+    if request.method == 'POST' and form.is_valid():
+        try:
+            result = form.save()
+        except IntegrityError:
+            form.add_error(
+                None,
+                "A result for this student, subject, exam, and session already exists.",
+            )
+        else:
+            messages.success(
+                request,
+                f"Result saved for {result.student.first_name} {result.student.last_name}.",
+            )
+            return redirect('add_result')
+
+    context = {
+        'form': form,
+        'recent_results': recent_results,
+        'teacher': teacher,
+    }
+    return render(request, 'Teacher/add_result.html', context)

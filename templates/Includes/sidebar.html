@@ -167,7 +167,7 @@
                     
                     <li class="menu-title"><span>Academics</span></li>
                     <li class="{% active_link 'add_result' 'active' %}">
-                        <a href="#"><i class="fas fa-edit"></i> <span>Add Result</span></a>
+                        <a href="{% url 'add_result' %}"><i class="fas fa-edit"></i> <span>Add Result</span></a>
                     </li>
                     
                     <li class="menu-title"><span>Leave & Feedback</span></li>
@@ -201,8 +201,8 @@
                     <li class="{% active_link 'student_attendance' 'active' %}">
                         <a href="{% url 'student_attendance' %}"><i class="fas fa-calendar-check"></i> <span>View Attendance</span></a>
                     </li>
-                    <li class="{% active_link 'view_result' 'active' %}">
-                        <a href="#"><i class="fas fa-poll"></i> <span>View Results</span></a>
+                    <li class="{% active_link 'student_results' 'active' %}">
+                        <a href="{% url 'student_results' %}"><i class="fas fa-poll"></i> <span>View Results</span></a>
                     </li>
                     
                     <li class="menu-title"><span>Leave & Feedback</span></li>

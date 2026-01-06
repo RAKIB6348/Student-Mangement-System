@@ -162,11 +162,11 @@
                         <li class="submenu active">
                             <a href="#"><i class="fas fa-chalkboard-teacher"></i> <span>Dashboard</span></a>
                         </li>
-                        <li><a href="#"><i class="fas fa-user-check"></i> <span>Take Attendance</span></a></li>
-                        <li><a href="#"><i class="fas fa-calendar-alt"></i> <span>View and Update Attendance</span></a></li>
-                        <li><a href="#"><i class="fas fa-edit"></i> <span>Add Result</span></a></li>
-                        <li><a href="#"><i class="fas fa-file-medical"></i> <span>Apply for Leave</span></a></li>
-                        <li><a href="#"><i class="fas fa-comment-dots"></i> <span>Send Feedback</span></a></li>
+                        <li><a href="{% url 'take_attendance' %}"><i class="fas fa-user-check"></i> <span>Take Attendance</span></a></li>
+                        <li><a href="{% url 'view_update_attendance' %}"><i class="fas fa-calendar-alt"></i> <span>View and Update Attendance</span></a></li>
+                        <li><a href="{% url 'add_result' %}"><i class="fas fa-edit"></i> <span>Add Result</span></a></li>
+                        <li><a href="{% url 'apply_leave' %}"><i class="fas fa-file-medical"></i> <span>Apply for Leave</span></a></li>
+                        <li><a href="{% url 'teacher_feedback' %}"><i class="fas fa-comment-dots"></i> <span>Send Feedback</span></a></li>
                         <li><a href="{% url 'teacher_notification' %}"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
                         <li><a href="#"><i class="fas fa-key"></i> <span>Change Password</span></a></li>
                         <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>

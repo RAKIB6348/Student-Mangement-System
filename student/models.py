@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from account.models import User
-from academic.models import Section, Class, Session
+from academic.models import Section, Class, Session, Subject
 
 class StudentInfo(models.Model):
     GENDER = [
@@ -258,3 +258,89 @@ class StudentLeave(models.Model):
 
     def __str__(self):
         return f"{self.student.first_name} {self.student.last_name}"
+
+
+class StudentResult(models.Model):
+    EXAM_TYPES = [
+        ("Midterm", "Mid Term"),
+        ("Final", "Final"),
+        ("Quiz", "Quiz/Test"),
+        ("Practical", "Practical"),
+        ("Other", "Other"),
+    ]
+
+    student = models.ForeignKey(
+        StudentInfo,
+        on_delete=models.CASCADE,
+        related_name="results",
+    )
+    session = models.ForeignKey(
+        Session,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="student_results",
+    )
+    klass = models.ForeignKey(
+        Class,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="student_results",
+    )
+    section = models.ForeignKey(
+        Section,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="student_results",
+    )
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="student_results",
+    )
+    exam_type = models.CharField(
+        max_length=20,
+        choices=EXAM_TYPES,
+        default="Final",
+    )
+    total_marks = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        help_text="Maximum marks for this exam or assessment.",
+    )
+    obtained_marks = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        help_text="Marks obtained by the student.",
+    )
+    grade = models.CharField(
+        max_length=5,
+        blank=True,
+        null=True,
+        help_text="Optional grade or letter representation.",
+    )
+    remarks = models.TextField(
+        blank=True,
+        null=True,
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Student Result"
+        verbose_name_plural = "Student Results"
+        ordering = ["-recorded_at"]
+        unique_together = ("student", "subject", "exam_type", "session")
+
+    def __str__(self):
+        subject_name = self.subject.name if self.subject else "N/A"
+        return f"{self.student} - {subject_name} ({self.exam_type})"
+
+    def percentage(self):
+        if self.total_marks and self.total_marks > 0:
+            return float((self.obtained_marks / self.total_marks) * 100)
+        return None

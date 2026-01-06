@@ -1,5 +1,7 @@
 from django import forms
 
+from student.models import StudentResult
+
 from .models import TeacherLeave, Feedback
 
 
@@ -51,3 +53,72 @@ class TeacherFeedbackForm(forms.ModelForm):
                 }
             )
         }
+
+
+class StudentResultForm(forms.ModelForm):
+    class Meta:
+        model = StudentResult
+        fields = [
+            "student",
+            "session",
+            "klass",
+            "section",
+            "subject",
+            "exam_type",
+            "total_marks",
+            "obtained_marks",
+            "grade",
+            "remarks",
+        ]
+        widgets = {
+            "remarks": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+            "exam_type": forms.Select(attrs={"class": "form-control"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            existing_class = field.widget.attrs.get("class", "")
+            field.widget.attrs["class"] = f"{existing_class} form-control".strip()
+
+        for name in ["total_marks", "obtained_marks"]:
+            self.fields[name].widget = forms.NumberInput(
+                attrs={"class": "form-control", "step": "0.01", "min": "0"}
+            )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        total = cleaned_data.get("total_marks")
+        obtained = cleaned_data.get("obtained_marks")
+
+        if total is not None and total <= 0:
+            self.add_error("total_marks", "Total marks must be greater than zero.")
+
+        if obtained is not None and obtained < 0:
+            self.add_error("obtained_marks", "Obtained marks cannot be negative.")
+
+        if (
+            total is not None
+            and obtained is not None
+            and total > 0
+            and obtained > total
+        ):
+            self.add_error(
+                "obtained_marks",
+                "Obtained marks cannot be greater than total marks.",
+            )
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        result = super().save(commit=False)
+        student = result.student
+
+        if student:
+            result.session = result.session or student.session
+            result.klass = result.klass or student.klass
+            result.section = result.section or student.section
+
+        if commit:
+            result.save()
+        return result

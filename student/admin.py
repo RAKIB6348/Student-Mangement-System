@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import StudentInfo, StudentNotification, StudentFeedback, StudentLeave
+from .models import StudentInfo, StudentNotification, StudentFeedback, StudentLeave, StudentResult
 
 
 @admin.register(StudentInfo)
@@ -97,3 +97,25 @@ class StudentLeaveAdmin(admin.ModelAdmin):
     list_filter = ("leave_type", "status")
     search_fields = ("student__first_name", "student__last_name", "reason")
     autocomplete_fields = ("student",)
+
+
+@admin.register(StudentResult)
+class StudentResultAdmin(admin.ModelAdmin):
+    list_display = (
+        "student",
+        "subject",
+        "exam_type",
+        "obtained_marks",
+        "total_marks",
+        "grade",
+        "session",
+        "recorded_at",
+    )
+    list_filter = ("exam_type", "session", "klass", "subject")
+    search_fields = (
+        "student__first_name",
+        "student__last_name",
+        "student__student_user_id",
+        "subject__name",
+    )
+    autocomplete_fields = ("student", "session", "klass", "section", "subject")

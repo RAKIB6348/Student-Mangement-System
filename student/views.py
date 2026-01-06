@@ -11,8 +11,16 @@ from account.models import User
 from academic.models import Session, Class, Section
 from teacher.models import AttendanceRecord
 
-from .models import StudentInfo, StudentNotification, StudentFeedback, StudentLeave
+from .models import StudentInfo, StudentNotification, StudentFeedback, StudentLeave, StudentResult
 from .forms import StudentFeedbackForm, StudentLeaveForm
+
+# Helpers
+def _parse_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
 
 # Create your views here.
 def student_list(request):
@@ -268,6 +276,76 @@ def student_attendance(request):
         'status_choices': AttendanceRecord.STATUS_CHOICES,
     }
     return render(request, 'Student/attendance.html', context)
+
+
+@login_required
+def student_results(request):
+    if request.user.user_type != 'Student':
+        return HttpResponseForbidden('Only students can view this page.')
+
+    student = get_object_or_404(StudentInfo, user=request.user)
+
+    base_qs = StudentResult.objects.filter(student=student).select_related(
+        'subject', 'session', 'klass', 'section'
+    ).order_by('-recorded_at', '-id')
+
+    session_options = (
+        base_qs.filter(session__isnull=False)
+        .values_list('session_id', 'session__name')
+        .distinct()
+    )
+    subject_options = (
+        base_qs.filter(subject__isnull=False)
+        .values_list('subject_id', 'subject__name')
+        .distinct()
+    )
+
+    filters = {
+        'session': request.GET.get('session') or '',
+        'subject': request.GET.get('subject') or '',
+        'exam_type': request.GET.get('exam_type') or '',
+    }
+
+    results = base_qs
+
+    session_id = _parse_int(filters['session'])
+    if filters['session'] and session_id is None:
+        messages.error(request, 'Invalid session filter ignored.')
+        filters['session'] = ''
+    elif session_id:
+        results = results.filter(session_id=session_id)
+
+    subject_id = _parse_int(filters['subject'])
+    if filters['subject'] and subject_id is None:
+        messages.error(request, 'Invalid subject filter ignored.')
+        filters['subject'] = ''
+    elif subject_id:
+        results = results.filter(subject_id=subject_id)
+
+    valid_exam_types = {choice[0] for choice in StudentResult.EXAM_TYPES}
+    if filters['exam_type'] and filters['exam_type'] not in valid_exam_types:
+        messages.error(request, 'Invalid exam type filter ignored.')
+        filters['exam_type'] = ''
+    elif filters['exam_type']:
+        results = results.filter(exam_type=filters['exam_type'])
+
+    result_list = list(results)
+    percentages = [res.percentage() for res in result_list if res.percentage() is not None]
+    avg_percentage = round(sum(percentages) / len(percentages), 2) if percentages else None
+
+    context = {
+        'student': student,
+        'results': result_list,
+        'filters': filters,
+        'session_options': sorted(session_options, key=lambda item: item[1]),
+        'subject_options': sorted(subject_options, key=lambda item: item[1]),
+        'exam_type_options': StudentResult.EXAM_TYPES,
+        'summary': {
+            'total': len(result_list),
+            'average_percentage': avg_percentage,
+        },
+    }
+    return render(request, 'Student/view_results.html', context)
 
 
 def student_edit(request, id):
