@@ -169,6 +169,15 @@
                     <li class="{% active_link 'add_result' 'active' %}">
                         <a href="{% url 'add_result' %}"><i class="fas fa-edit"></i> <span>Add Result</span></a>
                     </li>
+                    <li class="{% active_link 'manage_results' 'active' %}">
+                        <a href="{% url 'manage_results' %}"><i class="fas fa-clipboard-list"></i> <span>Manage Results</span></a>
+                    </li>
+                    <li class="{% active_link 'teacher_assignment_list' 'active' %}">
+                        <a href="{% url 'teacher_assignment_list' %}"><i class="fas fa-tasks"></i> <span>Assignments</span></a>
+                    </li>
+                    <li class="{% active_link 'assignment_create' 'active' %}">
+                        <a href="{% url 'assignment_create' %}"><i class="fas fa-plus-circle"></i> <span>Create Assignment</span></a>
+                    </li>
                     
                     <li class="menu-title"><span>Leave & Feedback</span></li>
                     <li class="{% active_link 'apply_leave' 'active' %}">
@@ -203,6 +212,9 @@
                     </li>
                     <li class="{% active_link 'student_results' 'active' %}">
                         <a href="{% url 'student_results' %}"><i class="fas fa-poll"></i> <span>View Results</span></a>
+                    </li>
+                    <li class="{% active_link 'student_assignments' 'active' %}">
+                        <a href="{% url 'student_assignments' %}"><i class="fas fa-tasks"></i> <span>Assignments</span></a>
                     </li>
                     
                     <li class="menu-title"><span>Leave & Feedback</span></li>

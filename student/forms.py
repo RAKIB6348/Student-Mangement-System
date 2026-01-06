@@ -1,6 +1,8 @@
 from django import forms
+from django.core.exceptions import ValidationError
 
 from .models import StudentFeedback, StudentLeave
+from teacher.models import AssignmentSubmission
 
 
 class StudentFeedbackForm(forms.ModelForm):
@@ -48,3 +50,28 @@ class StudentLeaveForm(forms.ModelForm):
         if start and end and start > end:
             raise forms.ValidationError("Start date cannot be later than end date.")
         return cleaned_data
+
+
+class AssignmentSubmissionForm(forms.ModelForm):
+    class Meta:
+        model = AssignmentSubmission
+        fields = ['submission_file', 'comment']
+        widgets = {
+            'comment': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['submission_file'].widget.attrs.update({
+            'class': 'form-control-file',
+            'accept': 'application/pdf,.pdf',
+        })
+
+    def clean_submission_file(self):
+        file = self.cleaned_data.get('submission_file')
+        if not file:
+            return file
+        content_type = getattr(file, 'content_type', '')
+        if not file.name.lower().endswith('.pdf') or (content_type and content_type != 'application/pdf'):
+            raise ValidationError('Please upload a PDF file.')
+        return file

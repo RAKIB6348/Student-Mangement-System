@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title mb-2">Submit Assignment</h3>
+                <ul class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'student_assignments' %}">Assignments</a></li>
+                    <li class="breadcrumb-item active">{{ assignment.title }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <p class="mb-2"><strong>Subject:</strong> {{ assignment.subject.name|default:"—" }}</p>
+            <p class="mb-2"><strong>Due Date:</strong> {{ assignment.due_date|date:"d M Y" }}</p>
+            {% if assignment.description %}
+                <p class="mb-2"><strong>Description:</strong> {{ assignment.description }}</p>
+            {% endif %}
+            {% if assignment.attachment %}
+                <a href="{{ assignment.attachment.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-download mr-1"></i>Download Attachment
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Upload PDF{% if not submission %} <span class="text-danger">*</span>{% endif %}</label>
+                    {{ form.submission_file }}
+                    <small class="form-text text-muted">Only PDF files are accepted.</small>
+                    {% if form.submission_file.errors %}
+                        <small class="text-danger d-block mt-1">{{ form.submission_file.errors.0 }}</small>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label>Comment</label>
+                    {{ form.comment }}
+                    {% if form.comment.errors %}
+                        <small class="text-danger d-block mt-1">{{ form.comment.errors.0 }}</small>
+                    {% endif %}
+                </div>
+                <div class="d-flex justify-content-end">
+                    <a href="{% url 'student_assignments' %}" class="btn btn-light mr-2">Back</a>
+                    <button type="submit" class="btn btn-primary">
+                        {% if submission %}<i class="fas fa-sync mr-1"></i>Update{% else %}<i class="fas fa-upload mr-1"></i>Submit{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

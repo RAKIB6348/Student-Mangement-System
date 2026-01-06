@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title mb-2">Manage Results</h3>
+                <ul class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Manage Results</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white border-0">
+            <h5 class="mb-0">Filter Results</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="form-group col-md-3">
+                    <label class="form-label">Class</label>
+                    <select name="klass" class="form-control">
+                        <option value="">All</option>
+                        {% for klass in classes %}
+                            <option value="{{ klass.id }}" {% if klass.id == selected_class_id %}selected{% endif %}>
+                                {{ klass.name }} ({{ klass.class_code }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label class="form-label">Section</label>
+                    <select name="section" class="form-control">
+                        <option value="">All</option>
+                        {% for section in sections %}
+                            <option value="{{ section.id }}" {% if section.id == selected_section_id %}selected{% endif %}>
+                                {{ section.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label class="form-label">Session</label>
+                    <select name="session" class="form-control">
+                        <option value="">All</option>
+                        {% for sess in sessions %}
+                            <option value="{{ sess.id }}" {% if sess.id == selected_session_id %}selected{% endif %}>
+                                {{ sess.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label class="form-label">Subject</label>
+                    <select name="subject" class="form-control">
+                        <option value="">All</option>
+                        {% for subject in subjects %}
+                            <option value="{{ subject.id }}" {% if subject.id == selected_subject_id %}selected{% endif %}>
+                                {{ subject.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label class="form-label">Exam Type</label>
+                    <select name="exam_type" class="form-control">
+                        <option value="">All</option>
+                        {% for value,label in exam_type_choices %}
+                            <option value="{{ value }}" {% if selected_exam_type == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-filter mr-1"></i>Apply
+                    </button>
+                </div>
+                <div class="form-group col-md-3 d-flex align-items-end">
+                    <a href="{% url 'manage_results' %}" class="btn btn-light btn-block">
+                        <i class="fas fa-undo mr-1"></i>Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if results %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="klass" value="{{ selected_class_id|default:'' }}">
+                <input type="hidden" name="section" value="{{ selected_section_id|default:'' }}">
+                <input type="hidden" name="session" value="{{ selected_session_id|default:'' }}">
+                <input type="hidden" name="subject" value="{{ selected_subject_id|default:'' }}">
+                <input type="hidden" name="exam_type" value="{{ selected_exam_type|default:'' }}">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Student</th>
+                                <th>Subject</th>
+                                <th>Exam</th>
+                                <th style="width: 140px;">Marks</th>
+                                <th style="width: 120px;">Grade</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <td>{{ result.recorded_at|date:"d M Y" }}</td>
+                                <td>
+                                    <strong>{{ result.student.first_name }} {{ result.student.last_name }}</strong><br>
+                                    <small class="text-muted">Roll: {{ result.student.roll_no|default:"—" }}</small>
+                                </td>
+                                <td>{{ result.subject.name|default:"—" }}</td>
+                                <td>{{ result.exam_type }}</td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" min="0" max="{{ result.total_marks }}" step="0.01" name="marks_{{ result.id }}" value="{{ result.obtained_marks }}" class="form-control">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">/ {{ result.total_marks }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" name="grade_{{ result.id }}" value="{{ result.grade|default:'' }}" class="form-control form-control-sm" maxlength="5">
+                                </td>
+                                <td>
+                                    <input type="text" name="remark_{{ result.id }}" value="{{ result.remarks|default:'' }}" class="form-control form-control-sm" placeholder="Optional remark">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-right mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save mr-1"></i>Update Results
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-file-alt fa-2x mb-3"></i>
+                <p class="mb-0">No results match the selected filters.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

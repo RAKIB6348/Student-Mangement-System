@@ -10,6 +10,8 @@ urlpatterns = [
 
     path('dashboard/', student_dashboard, name='student_dashboard'),
     path('attendance/', student_attendance, name='student_attendance'),
+    path('assignments/', student_assignments, name='student_assignments'),
+    path('assignments/<int:pk>/submit/', submit_assignment, name='submit_assignment'),
     path('results/', student_results, name='student_results'),
     path('notifications/', student_notification, name='student_notification'),
     path('feedback/', student_feedback, name='student_feedback'),

@@ -12,6 +12,10 @@ urlpatterns = [
     path('take-attendance/', take_attendance, name='take_attendance'),
     path('attendance-history/', view_update_attendance, name='view_update_attendance'),
     path('add-result/', add_result, name='add_result'),
+    path('manage-results/', manage_results, name='manage_results'),
+    path('assignments/', teacher_assignment_list, name='teacher_assignment_list'),
+    path('assignments/add/', assignment_create, name='assignment_create'),
+    path('assignments/<int:pk>/', assignment_detail, name='assignment_detail'),
     
     path('notifications/', teacher_notification, name='teacher_notification'),
     path('apply-leave/', apply_leave, name='apply_leave'),

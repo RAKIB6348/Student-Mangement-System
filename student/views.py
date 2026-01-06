@@ -6,13 +6,15 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_http_methods
 
 from account.models import User
 from academic.models import Session, Class, Section
-from teacher.models import AttendanceRecord
+from django.db.models import Q
+from teacher.models import AttendanceRecord, Assignment, AssignmentSubmission
 
 from .models import StudentInfo, StudentNotification, StudentFeedback, StudentLeave, StudentResult
-from .forms import StudentFeedbackForm, StudentLeaveForm
+from .forms import StudentFeedbackForm, StudentLeaveForm, AssignmentSubmissionForm
 
 # Helpers
 def _parse_int(value):
@@ -346,6 +348,106 @@ def student_results(request):
         },
     }
     return render(request, 'Student/view_results.html', context)
+
+
+@login_required
+def student_assignments(request):
+    if request.user.user_type != 'Student':
+        return HttpResponseForbidden('Only students can access assignments.')
+
+    student = get_object_or_404(StudentInfo, user=request.user)
+
+    base_assignments = Assignment.objects.select_related(
+        'teacher', 'klass', 'section', 'session', 'subject'
+    )
+
+    if student.klass:
+        base_assignments = base_assignments.filter(klass=student.klass)
+    if student.session:
+        base_assignments = base_assignments.filter(Q(session__isnull=True) | Q(session=student.session))
+    if student.section:
+        base_assignments = base_assignments.filter(Q(section__isnull=True) | Q(section=student.section))
+
+    base_assignments = base_assignments.order_by('-created_at')
+
+    assignment_ids = list(base_assignments.values_list('id', flat=True))
+    submissions = AssignmentSubmission.objects.filter(student=student, assignment_id__in=assignment_ids)
+    submission_map = {submission.assignment_id: submission for submission in submissions}
+
+    inline_forms = {}
+    if request.method == 'POST':
+        assignment_id = _parse_int(request.POST.get('assignment_id'))
+        if assignment_id and assignment_id in assignment_ids:
+            assignment = next((a for a in base_assignments if a.id == assignment_id), None)
+            if assignment:
+                submission_instance = submission_map.get(assignment_id)
+                form = AssignmentSubmissionForm(request.POST, request.FILES, instance=submission_instance)
+                if form.is_valid():
+                    submission = form.save(commit=False)
+                    submission.assignment_id = assignment_id
+                    submission.student = student
+                    submission.save()
+                    messages.success(request, 'Assignment submitted successfully.')
+                    return redirect('student_assignments')
+                else:
+                    inline_forms[assignment_id] = form
+        else:
+            messages.error(request, 'Invalid assignment selected for submission.')
+
+    assignment_list = []
+    for assignment in base_assignments:
+        assignment.user_submission = submission_map.get(assignment.id)
+        assignment.inline_form = inline_forms.get(
+            assignment.id,
+            AssignmentSubmissionForm(instance=assignment.user_submission)
+        )
+        assignment_list.append(assignment)
+
+    context = {
+        'student': student,
+        'assignments': assignment_list,
+    }
+    return render(request, 'Student/assignments.html', context)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def submit_assignment(request, pk):
+    if request.user.user_type != 'Student':
+        return HttpResponseForbidden('Only students can submit assignments.')
+
+    student = get_object_or_404(StudentInfo, user=request.user)
+    assignment = get_object_or_404(
+        Assignment.objects.select_related('teacher', 'klass', 'section', 'session', 'subject'),
+        pk=pk,
+    )
+
+    if assignment.klass and student.klass_id != assignment.klass_id:
+        return HttpResponseForbidden('You are not allowed to submit this assignment.')
+    if assignment.section and student.section_id != assignment.section_id:
+        return HttpResponseForbidden('You are not allowed to submit this assignment.')
+
+    submission = AssignmentSubmission.objects.filter(
+        assignment=assignment,
+        student=student,
+    ).first()
+
+    form = AssignmentSubmissionForm(request.POST or None, request.FILES or None, instance=submission)
+
+    if request.method == 'POST' and form.is_valid():
+        submission_obj = form.save(commit=False)
+        submission_obj.assignment = assignment
+        submission_obj.student = student
+        submission_obj.save()
+        messages.success(request, 'Assignment submitted successfully.')
+        return redirect('student_assignments')
+
+    context = {
+        'assignment': assignment,
+        'form': form,
+        'submission': submission,
+    }
+    return render(request, 'Student/submit_assignment.html', context)
 
 
 def student_edit(request, id):

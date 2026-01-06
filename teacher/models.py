@@ -235,3 +235,75 @@ class AttendanceRecord(models.Model):
 
     def __str__(self):
         return f"{self.student} - {self.attendance.date} ({self.status})"
+
+
+class Assignment(models.Model):
+    teacher = models.ForeignKey(
+        TeacherInfo,
+        on_delete=models.CASCADE,
+        related_name="assignments",
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    klass = models.ForeignKey(
+        Class,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assignments",
+    )
+    section = models.ForeignKey(
+        Section,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assignments",
+    )
+    session = models.ForeignKey(
+        Session,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assignments",
+    )
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assignments",
+    )
+    due_date = models.DateField()
+    attachment = models.FileField(upload_to='assignments/resources/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.klass} - {self.subject})"
+
+
+class AssignmentSubmission(models.Model):
+    assignment = models.ForeignKey(
+        Assignment,
+        on_delete=models.CASCADE,
+        related_name="submissions",
+    )
+    student = models.ForeignKey(
+        StudentInfo,
+        on_delete=models.CASCADE,
+        related_name="assignment_submissions",
+    )
+    submission_file = models.FileField(upload_to='assignments/submissions/', blank=True, null=True)
+    comment = models.TextField(blank=True, null=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('assignment', 'student')
+        ordering = ['-submitted_at']
+
+    def __str__(self):
+        return f"{self.assignment.title} - {self.student.first_name}"

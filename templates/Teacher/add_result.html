@@ -1,6 +1,56 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    .result-grid {
+        display: grid;
+        grid-template-columns: minmax(280px, 1fr) minmax(0, 2fr);
+        grid-gap: 24px;
+    }
+    .result-secondary-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+        grid-gap: 24px;
+    }
+    @media (max-width: 991px) {
+        .result-grid,
+        .result-secondary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    .filter-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        grid-gap: 15px;
+        margin-bottom: 16px;
+    }
+    .filter-tile {
+        border: 1px solid rgba(79, 70, 229, 0.15);
+        border-radius: 12px;
+        padding: 16px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-column-gap: 14px;
+        align-items: center;
+        min-height: 100px;
+        background: #f8f9ff;
+    }
+    .filter-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+    .filter-tile label {
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+</style>
 <div class="content container-fluid">
     <div class="page-header">
         <div class="row align-items-center">
@@ -14,155 +64,229 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="mb-0">Result Information</h5>
-                        <small class="text-muted">Select the student and fill in the assessment details.</small>
-                    </div>
+    <div class="result-grid mb-4">
+        <div>
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0">1. Select Class & Session</h5>
                 </div>
                 <div class="card-body">
-                    <form method="post" novalidate>
+                    <form method="get" class="mb-0">
+                        <div class="filter-row">
+                            <div class="filter-tile">
+                                <span class="filter-icon"><i class="fas fa-chalkboard"></i></span>
+                                <div>
+                                    <label>Class <span class="text-danger">*</span></label>
+                                    <select name="klass" class="form-control" required>
+                                        <option value="">Choose class</option>
+                                        {% for klass in classes %}
+                                            <option value="{{ klass.id }}" {% if klass.id == selected_class_id %}selected{% endif %}>
+                                                {{ klass.name }} ({{ klass.class_code }})
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="filter-tile">
+                                <span class="filter-icon"><i class="fas fa-layer-group"></i></span>
+                                <div>
+                                    <label>Section</label>
+                                    <select name="section" class="form-control">
+                                        <option value="">All sections</option>
+                                        {% for section in sections %}
+                                            <option value="{{ section.id }}" {% if section.id == selected_section_id %}selected{% endif %}>
+                                                {{ section.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="filter-tile">
+                                <span class="filter-icon"><i class="fas fa-calendar-alt"></i></span>
+                                <div>
+                                    <label>Session <span class="text-danger">*</span></label>
+                                    <select name="session" class="form-control" required>
+                                        <option value="">Choose session</option>
+                                        {% for sess in sessions %}
+                                            <option value="{{ sess.id }}" {% if sess.id == selected_session_id %}selected{% endif %}>
+                                                {{ sess.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-users mr-1"></i>Load Students
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% if selected_class or selected_session %}
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase mb-3">Current Selection</h6>
+                    <p class="mb-2"><strong>Class:</strong> {{ selected_class.name|default:"—" }}</p>
+                    <p class="mb-2"><strong>Section:</strong> {{ selected_section.name|default:"All" }}</p>
+                    <p class="mb-0"><strong>Session:</strong> {{ selected_session.name|default:"—" }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div>
+            {% if students %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-1">2. Enter Marks <small class="text-muted">({{ students|length }} students)</small></h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
                         {% csrf_token %}
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {% for error in form.non_field_errors %}
-                                    <div>{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <div class="form-group">
-                            <label>Student <span class="text-danger">*</span></label>
-                            {{ form.student }}
-                            {% if form.student.errors %}
-                                <small class="text-danger">{{ form.student.errors.0 }}</small>
-                            {% endif %}
-                        </div>
+                        <input type="hidden" name="klass" value="{{ selected_class_id|default:'' }}">
+                        <input type="hidden" name="section" value="{{ selected_section_id|default:'' }}">
+                        <input type="hidden" name="session" value="{{ selected_session_id|default:'' }}">
+
                         <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Session</label>
-                                {{ form.session }}
-                                {% if form.session.errors %}
-                                    <small class="text-danger">{{ form.session.errors.0 }}</small>
-                                {% endif %}
+                            <div class="form-group col-md-5">
+                                <label class="font-weight-semibold">Subject <span class="text-danger">*</span></label>
+                                <select name="subject" class="form-control" required>
+                                    <option value="">Choose subject</option>
+                                    {% for subject in subjects %}
+                                        <option value="{{ subject.id }}" {% if subject.id == selected_subject_id %}selected{% endif %}>
+                                            {{ subject.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
                             </div>
-                            <div class="form-group col-md-6">
-                                <label>Class</label>
-                                {{ form.klass }}
-                                {% if form.klass.errors %}
-                                    <small class="text-danger">{{ form.klass.errors.0 }}</small>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Section</label>
-                                {{ form.section }}
-                                {% if form.section.errors %}
-                                    <small class="text-danger">{{ form.section.errors.0 }}</small>
-                                {% endif %}
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Subject <span class="text-danger">*</span></label>
-                                {{ form.subject }}
-                                {% if form.subject.errors %}
-                                    <small class="text-danger">{{ form.subject.errors.0 }}</small>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Exam Type</label>
-                                {{ form.exam_type }}
-                                {% if form.exam_type.errors %}
-                                    <small class="text-danger">{{ form.exam_type.errors.0 }}</small>
-                                {% endif %}
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label>Total Marks</label>
-                                {{ form.total_marks }}
-                                {% if form.total_marks.errors %}
-                                    <small class="text-danger">{{ form.total_marks.errors.0 }}</small>
-                                {% endif %}
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label>Obtained</label>
-                                {{ form.obtained_marks }}
-                                {% if form.obtained_marks.errors %}
-                                    <small class="text-danger">{{ form.obtained_marks.errors.0 }}</small>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group col-md-4">
-                                <label>Grade</label>
-                                {{ form.grade }}
-                                {% if form.grade.errors %}
-                                    <small class="text-danger">{{ form.grade.errors.0 }}</small>
-                                {% endif %}
+                                <label class="font-weight-semibold">Exam Type <span class="text-danger">*</span></label>
+                                <select name="exam_type" class="form-control" required>
+                                    <option value="">Choose exam</option>
+                                    {% for value,label in exam_type_choices %}
+                                        <option value="{{ value }}" {% if value == selected_exam_type %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
-                            <div class="form-group col-md-8">
-                                <label>Remarks</label>
-                                {{ form.remarks }}
-                                {% if form.remarks.errors %}
-                                    <small class="text-danger">{{ form.remarks.errors.0 }}</small>
-                                {% endif %}
+                            <div class="form-group col-md-3">
+                                <label class="font-weight-semibold">Total Marks <span class="text-danger">*</span></label>
+                                <input type="number" name="total_marks" class="form-control" min="0" step="0.01" value="{{ total_marks_value|default:'' }}" required>
                             </div>
                         </div>
-                        <div class="text-right">
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Roll</th>
+                                        <th>Student</th>
+                                        <th style="width: 140px;">Marks</th>
+                                        <th style="width: 120px;">Grade</th>
+                                        <th>Remark</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in students %}
+                                    <tr>
+                                        <td>{{ student.roll_no|default:"—" }}</td>
+                                        <td>
+                                            <strong>{{ student.first_name }} {{ student.last_name }}</strong><br>
+                                            <small class="text-muted">{{ student.student_user_id|default:"—" }}</small>
+                                            {% if student.previous_marks %}
+                                                <div><small class="text-info">Last: {{ student.previous_marks }} {% if student.previous_grade %}({{ student.previous_grade }}){% endif %}</small></div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <input type="number" min="0" step="0.01" name="marks_{{ student.id }}" class="form-control" value="{{ student.current_marks }}">
+                                            {% if student.error_message %}
+                                                <small class="text-danger">{{ student.error_message }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <input type="text" name="grade_{{ student.id }}" class="form-control" value="{{ student.current_grade }}" maxlength="5">
+                                        </td>
+                                        <td>
+                                            <input type="text" name="remark_{{ student.id }}" class="form-control" value="{{ student.current_remark }}" placeholder="Optional remark">
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save mr-1"></i>Save Result
+                                <i class="fas fa-save mr-1"></i>Save Results
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
+            {% elif filter_submitted %}
+            <div class="alert alert-info">
+                No students were found for the selected combination. Please adjust the filters and try again.
+            </div>
+            {% endif %}
         </div>
-        <div class="col-lg-6">
+    </div>
+
+    <div class="result-secondary-grid">
+        <div>
             <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white border-0">
-                    <h5 class="mb-0">Recently Added Results</h5>
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Entries</h5>
+                    <span class="badge badge-light">{{ recent_results|length }} items</span>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     {% if recent_results %}
-                        <div class="table-responsive">
-                            <table class="table table-striped table-sm mb-0">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>Student</th>
-                                        <th>Subject</th>
-                                        <th>Exam</th>
-                                        <th>Marks</th>
-                                        <th>Session</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for result in recent_results %}
-                                        <tr>
-                                            <td>{{ result.student.first_name }} {{ result.student.last_name }}</td>
-                                            <td>{{ result.subject.name|default:"—" }}</td>
-                                            <td>{{ result.exam_type }}</td>
-                                            <td>{{ result.obtained_marks }} / {{ result.total_marks }}</td>
-                                            <td>{{ result.session.name|default:"—" }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Subject</th>
+                                    <th class="text-right">Marks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in recent_results %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ result.student.first_name }} {{ result.student.last_name }}</strong><br>
+                                        <small class="text-muted">{{ result.exam_type }} · {{ result.session.name|default:"—" }}</small>
+                                    </td>
+                                    <td>{{ result.subject.name|default:"—" }}</td>
+                                    <td class="text-right">
+                                        <span class="text-success font-weight-semibold">{{ result.obtained_marks }}</span>
+                                        <small class="text-muted">/ {{ result.total_marks }}</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                     {% else %}
-                        <p class="text-muted mb-0">No results recorded yet.</p>
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-chart-line fa-2x mb-2"></i>
+                        <p class="mb-0">No results recorded yet.</p>
+                    </div>
                     {% endif %}
                 </div>
             </div>
-            <div class="alert alert-info">
-                <h6 class="alert-heading mb-2">Tips</h6>
-                <ul class="mb-0 pl-3">
-                    <li>If session/class/section are left blank, the student's current values will be used.</li>
-                    <li>Marks are validated so that obtained marks cannot exceed the total.</li>
-                    <li>Duplicate entries for the same student/subject/exam/session are prevented.</li>
-                </ul>
+        </div>
+        <div>
+            <div class="card shadow-sm mb-4 h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h5 class="mb-3">Need to edit marks?</h5>
+                        <p class="text-muted mb-4">
+                            Use the Manage Results page to quickly adjust previously saved entries or bulk update marks.
+                        </p>
+                    </div>
+                    <a href="{% url 'manage_results' %}" class="btn btn-outline-primary btn-block">
+                        <i class="fas fa-clipboard-list mr-1"></i>Go to Manage Results
+                    </a>
+                </div>
             </div>
         </div>
     </div>

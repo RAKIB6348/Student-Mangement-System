@@ -14,9 +14,11 @@ from django.views.decorators.http import require_http_methods
 
 from account.models import User
 from academic.models import Class, Section, Session, Subject
+from decimal import Decimal, InvalidOperation
+
 from student.models import StudentInfo, StudentResult
 
-from .forms import TeacherFeedbackForm, TeacherLeaveForm, StudentResultForm
+from .forms import TeacherFeedbackForm, TeacherLeaveForm, StudentResultForm, TeacherAssignmentForm
 from .models import (
     Attendance,
     AttendanceRecord,
@@ -24,6 +26,8 @@ from .models import (
     TeacherInfo,
     TeacherLeave,
     TeacherNotification,
+    Assignment,
+    AssignmentSubmission,
 )
 
 
@@ -553,30 +557,349 @@ def add_result(request):
         return HttpResponseForbidden('Only teachers can add results.')
 
     teacher = get_object_or_404(TeacherInfo, user=request.user)
-    form = StudentResultForm(request.POST or None)
+    classes = Class.objects.all().order_by('class_code')
+    sections = Section.objects.all().order_by('name')
+    sessions = Session.objects.all().order_by('-start_date')
+    subjects = Subject.objects.all().order_by('name')
+    exam_type_choices = StudentResult.EXAM_TYPES
     recent_results = (
         StudentResult.objects.select_related('student', 'subject', 'session')
         .order_by('-recorded_at')[:10]
     )
 
-    if request.method == 'POST' and form.is_valid():
-        try:
-            result = form.save()
-        except IntegrityError:
-            form.add_error(
-                None,
-                "A result for this student, subject, exam, and session already exists.",
+    selected_class_id = _parse_int(request.GET.get('klass') or request.POST.get('klass'))
+    selected_section_id = _parse_int(request.GET.get('section') or request.POST.get('section'))
+    selected_session_id = _parse_int(request.GET.get('session') or request.POST.get('session'))
+    selected_subject_id = _parse_int(request.GET.get('subject') or request.POST.get('subject'))
+    selected_exam_type = request.GET.get('exam_type') or request.POST.get('exam_type') or ''
+    total_marks_value = request.POST.get('total_marks') if request.method == 'POST' else ''
+
+    selected_class = Class.objects.filter(id=selected_class_id).first() if selected_class_id else None
+    selected_section = Section.objects.filter(id=selected_section_id).first() if selected_section_id else None
+    selected_session = Session.objects.filter(id=selected_session_id).first() if selected_session_id else None
+    selected_subject = Subject.objects.filter(id=selected_subject_id).first() if selected_subject_id else None
+
+    filter_submitted = bool(selected_class_id or selected_session_id or selected_section_id)
+
+    students = []
+    if selected_class_id and selected_session_id:
+        students_qs = StudentInfo.objects.filter(
+            klass_id=selected_class_id,
+            session_id=selected_session_id,
+        )
+        if selected_section_id:
+            students_qs = students_qs.filter(section_id=selected_section_id)
+        students = list(
+            students_qs.select_related('klass', 'section', 'session').order_by(
+                'roll_no', 'first_name', 'last_name'
             )
+        )
+
+    existing_results_map = {}
+    if selected_subject_id and selected_session_id and selected_exam_type:
+        existing_qs = StudentResult.objects.filter(
+            student__in=students,
+            subject_id=selected_subject_id,
+            session_id=selected_session_id,
+            exam_type=selected_exam_type,
+        )
+        existing_results_map = {result.student_id: result for result in existing_qs}
+        if not total_marks_value and existing_results_map:
+            sample = next(iter(existing_results_map.values()))
+            total_marks_value = sample.total_marks
+
+    student_errors = {}
+    saved_count = 0
+
+    if isinstance(total_marks_value, Decimal):
+        total_marks_value = format(total_marks_value.normalize(), 'f').rstrip('0').rstrip('.') or '0'
+
+    if request.method == 'POST':
+        if not (selected_class_id and selected_session_id):
+            messages.error(request, 'Please select Class and Session before submitting marks.')
+        elif not selected_subject:
+            messages.error(request, 'Subject is required.')
+        elif not selected_exam_type or selected_exam_type not in {choice[0] for choice in exam_type_choices}:
+            messages.error(request, 'Please choose a valid exam type.')
+        elif not students:
+            messages.warning(request, 'No students found for the selected filters.')
         else:
+            try:
+                total_marks_decimal = Decimal(str(total_marks_value))
+            except (InvalidOperation, TypeError):
+                messages.error(request, 'Enter a valid Total Marks value.')
+            else:
+                if total_marks_decimal <= 0:
+                    messages.error(request, 'Total Marks must be greater than zero.')
+                else:
+                    for student in students:
+                        raw_marks = request.POST.get(f'marks_{student.id}', '').strip()
+                        grade_value = request.POST.get(f'grade_{student.id}', '').strip() or None
+                        remark_value = request.POST.get(f'remark_{student.id}', '').strip() or None
+
+                        if raw_marks == '':
+                            continue
+
+                        try:
+                            obtained_decimal = Decimal(raw_marks)
+                        except (InvalidOperation, TypeError):
+                            student_errors[student.id] = 'Enter a valid number.'
+                            continue
+
+                        if obtained_decimal < 0 or obtained_decimal > total_marks_decimal:
+                            student_errors[student.id] = 'Must be between 0 and total marks.'
+                            continue
+
+                        result, created = StudentResult.objects.update_or_create(
+                            student=student,
+                            subject=selected_subject,
+                            session=selected_session,
+                            exam_type=selected_exam_type,
+                            defaults={
+                                'klass': selected_class,
+                                'section': selected_section,
+                                'total_marks': total_marks_decimal,
+                                'obtained_marks': obtained_decimal,
+                                'grade': grade_value,
+                                'remarks': remark_value,
+                            },
+                        )
+                        saved_count += 1
+                        existing_results_map[student.id] = result
+
+                    if saved_count:
+                        messages.success(
+                            request,
+                            f"Results saved for {saved_count} student{'s' if saved_count != 1 else ''}.",
+                        )
+                        query_params = {
+                            'klass': selected_class_id,
+                            'session': selected_session_id,
+                        }
+                        if selected_section_id:
+                            query_params['section'] = selected_section_id
+                        if selected_subject_id:
+                            query_params['subject'] = selected_subject_id
+                        if selected_exam_type:
+                            query_params['exam_type'] = selected_exam_type
+                        return redirect(f"{reverse('add_result')}?{urlencode(query_params)}")
+
+    for student in students:
+        existing = existing_results_map.get(student.id)
+        if request.method == 'POST':
+            marks_value = request.POST.get(f'marks_{student.id}', '')
+            grade_value = request.POST.get(f'grade_{student.id}', '')
+            remark_value = request.POST.get(f'remark_{student.id}', '')
+        else:
+            marks_value = existing.obtained_marks if existing else ''
+            grade_value = existing.grade if existing else ''
+            remark_value = existing.remarks if existing else ''
+
+        if isinstance(marks_value, Decimal):
+            marks_value = format(marks_value.normalize(), 'f').rstrip('0').rstrip('.') or '0'
+
+        student.current_marks = marks_value
+        student.current_grade = grade_value or ''
+        student.current_remark = remark_value or ''
+        student.error_message = student_errors.get(student.id)
+        student.previous_marks = existing.obtained_marks if existing else None
+        student.previous_grade = existing.grade if existing else None
+        student.previous_timestamp = existing.recorded_at if existing else None
+
+    context = {
+        'teacher': teacher,
+        'classes': classes,
+        'sections': sections,
+        'sessions': sessions,
+        'subjects': subjects,
+        'exam_type_choices': exam_type_choices,
+        'selected_class_id': selected_class_id,
+        'selected_section_id': selected_section_id,
+        'selected_session_id': selected_session_id,
+        'selected_subject_id': selected_subject_id,
+        'selected_exam_type': selected_exam_type,
+        'total_marks_value': total_marks_value,
+        'students': students,
+        'filter_submitted': filter_submitted,
+        'selected_class': selected_class,
+        'selected_section': selected_section,
+        'selected_session': selected_session,
+        'recent_results': recent_results,
+        'selected_subject': selected_subject,
+    }
+    return render(request, 'Teacher/add_result.html', context)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def manage_results(request):
+    if request.user.user_type != 'Teacher':
+        return HttpResponseForbidden('Only teachers can manage results.')
+
+    TeacherInfo.objects.filter(user=request.user).exists()  # ensure teacher exists for context if needed
+
+    classes = Class.objects.all().order_by('class_code')
+    sections = Section.objects.all().order_by('name')
+    sessions = Session.objects.all().order_by('-start_date')
+    subjects = Subject.objects.all().order_by('name')
+    exam_type_choices = StudentResult.EXAM_TYPES
+
+    selected_class_id = _parse_int(request.GET.get('klass') or request.POST.get('klass'))
+    selected_section_id = _parse_int(request.GET.get('section') or request.POST.get('section'))
+    selected_session_id = _parse_int(request.GET.get('session') or request.POST.get('session'))
+    selected_subject_id = _parse_int(request.GET.get('subject') or request.POST.get('subject'))
+    selected_exam_type = request.GET.get('exam_type') or request.POST.get('exam_type') or ''
+
+    results = StudentResult.objects.select_related(
+        'student', 'subject', 'session', 'klass', 'section'
+    ).order_by('-recorded_at', 'student__roll_no')
+
+    if selected_class_id:
+        results = results.filter(klass_id=selected_class_id)
+    if selected_section_id:
+        results = results.filter(section_id=selected_section_id)
+    if selected_session_id:
+        results = results.filter(session_id=selected_session_id)
+    if selected_subject_id:
+        results = results.filter(subject_id=selected_subject_id)
+    if selected_exam_type:
+        results = results.filter(exam_type=selected_exam_type)
+
+    result_list = list(results)
+    saved_count = 0
+    if request.method == 'POST' and result_list:
+        for result in result_list:
+            marks_value = request.POST.get(f'marks_{result.id}', '').strip()
+            grade_value = request.POST.get(f'grade_{result.id}', '').strip() or None
+            remark_value = request.POST.get(f'remark_{result.id}', '').strip() or None
+            if not marks_value:
+                continue
+            try:
+                obtained_decimal = Decimal(marks_value)
+            except (InvalidOperation, TypeError):
+                continue
+            if obtained_decimal < 0 or obtained_decimal > result.total_marks:
+                continue
+            if (
+                obtained_decimal != result.obtained_marks
+                or grade_value != result.grade
+                or remark_value != (result.remarks or None)
+            ):
+                result.obtained_marks = obtained_decimal
+                result.grade = grade_value
+                result.remarks = remark_value
+                result.save(update_fields=['obtained_marks', 'grade', 'remarks', 'updated_at'])
+                saved_count += 1
+
+        if saved_count:
             messages.success(
                 request,
-                f"Result saved for {result.student.first_name} {result.student.last_name}.",
+                f"Updated {saved_count} result{'s' if saved_count != 1 else ''} successfully.",
             )
-            return redirect('add_result')
+        else:
+            messages.info(request, 'No changes detected to update.')
+        redirect_params = []
+        for key, value in (
+            ('klass', selected_class_id),
+            ('section', selected_section_id),
+            ('session', selected_session_id),
+            ('subject', selected_subject_id),
+            ('exam_type', selected_exam_type),
+        ):
+            if value:
+                redirect_params.append(f"{key}={value}")
+        redirect_url = reverse('manage_results')
+        if redirect_params:
+            redirect_url += f"?{'&'.join(map(str, redirect_params))}"
+        return redirect(redirect_url)
+
+    context = {
+        'classes': classes,
+        'sections': sections,
+        'sessions': sessions,
+        'subjects': subjects,
+        'exam_type_choices': exam_type_choices,
+        'selected_class_id': selected_class_id,
+        'selected_section_id': selected_section_id,
+        'selected_session_id': selected_session_id,
+        'selected_subject_id': selected_subject_id,
+        'selected_exam_type': selected_exam_type,
+        'results': result_list,
+    }
+    return render(request, 'Teacher/manage_results.html', context)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def assignment_create(request):
+    if request.user.user_type != 'Teacher':
+        return HttpResponseForbidden('Only teachers can create assignments.')
+
+    teacher = get_object_or_404(TeacherInfo, user=request.user)
+    form = TeacherAssignmentForm(request.POST or None, request.FILES or None)
+
+    if request.method == 'POST' and form.is_valid():
+        assignment = form.save(commit=False)
+        assignment.teacher = teacher
+        assignment.save()
+        messages.success(request, 'Assignment created successfully.')
+        return redirect('teacher_assignment_list')
 
     context = {
         'form': form,
-        'recent_results': recent_results,
-        'teacher': teacher,
     }
-    return render(request, 'Teacher/add_result.html', context)
+    return render(request, 'Teacher/add_assignment.html', context)
+
+
+@login_required
+def teacher_assignment_list(request):
+    if request.user.user_type != 'Teacher':
+        return HttpResponseForbidden('Only teachers can view assignments.')
+
+    teacher = get_object_or_404(TeacherInfo, user=request.user)
+    assignments = Assignment.objects.filter(teacher=teacher).select_related(
+        'klass', 'section', 'session', 'subject'
+    ).prefetch_related('submissions')
+
+    selected_class_id = _parse_int(request.GET.get('klass'))
+    selected_session_id = _parse_int(request.GET.get('session'))
+    selected_subject_id = _parse_int(request.GET.get('subject'))
+
+    if selected_class_id:
+        assignments = assignments.filter(klass_id=selected_class_id)
+    if selected_session_id:
+        assignments = assignments.filter(session_id=selected_session_id)
+    if selected_subject_id:
+        assignments = assignments.filter(subject_id=selected_subject_id)
+
+    assignments = assignments.order_by('-created_at')
+
+    context = {
+        'assignments': assignments,
+        'classes': Class.objects.all().order_by('class_code'),
+        'sessions': Session.objects.all().order_by('-start_date'),
+        'subjects': Subject.objects.all().order_by('name'),
+        'selected_class_id': selected_class_id,
+        'selected_session_id': selected_session_id,
+        'selected_subject_id': selected_subject_id,
+    }
+    return render(request, 'Teacher/assignment_list.html', context)
+
+
+@login_required
+def assignment_detail(request, pk):
+    if request.user.user_type != 'Teacher':
+        return HttpResponseForbidden('Only teachers can view submissions.')
+
+    assignment = get_object_or_404(
+        Assignment.objects.select_related('teacher', 'klass', 'section', 'session', 'subject'),
+        pk=pk,
+        teacher__user=request.user,
+    )
+    submissions = assignment.submissions.select_related('student').order_by('-submitted_at')
+
+    context = {
+        'assignment': assignment,
+        'submissions': submissions,
+    }
+    return render(request, 'Teacher/assignment_detail.html', context)

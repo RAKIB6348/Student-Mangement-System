@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title mb-2">{{ assignment.title }}</h3>
+                <ul class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'teacher_assignment_list' %}">Assignments</a></li>
+                    <li class="breadcrumb-item active">Submissions</li>
+                </ul>
+            </div>
+            <div class="col-auto">
+                <span class="badge badge-primary">Due: {{ assignment.due_date|date:"d M Y" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <p class="mb-2"><strong>Class:</strong> {{ assignment.klass.name|default:"—" }} {% if assignment.section %}<span class="badge badge-light ml-1">{{ assignment.section.name }}</span>{% endif %}</p>
+            <p class="mb-2"><strong>Subject:</strong> {{ assignment.subject.name|default:"—" }}</p>
+            <p class="mb-2"><strong>Session:</strong> {{ assignment.session.name|default:"—" }}</p>
+            {% if assignment.description %}
+                <p class="mb-2"><strong>Description:</strong> {{ assignment.description }}</p>
+            {% endif %}
+            {% if assignment.attachment %}
+                <a href="{{ assignment.attachment.url }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                    <i class="fas fa-download mr-1"></i>Download Attachment
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="mb-3">Submissions</h5>
+            {% if submissions %}
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Submitted On</th>
+                                <th>Attachment</th>
+                                <th>Comment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for submission in submissions %}
+                            <tr>
+                                <td>{{ submission.student.first_name }} {{ submission.student.last_name }}</td>
+                                <td>{{ submission.submitted_at|date:"d M Y h:i A" }}</td>
+                                <td>
+                                    {% if submission.submission_file %}
+                                        <a href="{{ submission.submission_file.url }}" target="_blank">Download</a>
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>{{ submission.comment|default:"—" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="fas fa-inbox fa-2x mb-3"></i>
+                    <p class="mb-0">No submissions yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

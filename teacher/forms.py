@@ -2,7 +2,7 @@ from django import forms
 
 from student.models import StudentResult
 
-from .models import TeacherLeave, Feedback
+from .models import TeacherLeave, Feedback, Assignment
 
 
 class TeacherLeaveForm(forms.ModelForm):
@@ -122,3 +122,29 @@ class StudentResultForm(forms.ModelForm):
         if commit:
             result.save()
         return result
+
+
+class TeacherAssignmentForm(forms.ModelForm):
+    due_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+
+    class Meta:
+        model = Assignment
+        fields = [
+            'title',
+            'description',
+            'klass',
+            'section',
+            'session',
+            'subject',
+            'due_date',
+            'attachment',
+        ]
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            existing = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = f"{existing} form-control".strip()
