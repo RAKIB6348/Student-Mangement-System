@@ -105,8 +105,8 @@
 
                     <!-- Attendance & Feedback -->
                     <li class="menu-title"><span>Attendance & Tracking</span></li>
-                    <li class="{% active_link 'view_attendance' 'active' %}">
-                        <a href="#"><i class="fas fa-calendar-check"></i> <span>View Attendance</span></a>
+                    <li class="{% active_link 'admin_attendance' 'active' %}">
+                        <a href="{% url 'admin_attendance' %}"><i class="fas fa-calendar-check"></i> <span>Attendance Overview</span></a>
                     </li>
 
                     <li class="menu-title"><span>Feedback Management</span></li>
@@ -198,8 +198,8 @@
                     </li>
                     
                     <li class="menu-title"><span>Academics</span></li>
-                    <li class="{% active_link 'view_attendance' 'active' %}">
-                        <a href="#"><i class="fas fa-calendar-check"></i> <span>View Attendance</span></a>
+                    <li class="{% active_link 'student_attendance' 'active' %}">
+                        <a href="{% url 'student_attendance' %}"><i class="fas fa-calendar-check"></i> <span>View Attendance</span></a>
                     </li>
                     <li class="{% active_link 'view_result' 'active' %}">
                         <a href="#"><i class="fas fa-poll"></i> <span>View Results</span></a>
@@ -226,12 +226,7 @@
                 </ul>
 
                 {% else %}
-                <!-- <ul>
-                    <li class="menu-title"><span>Main Menu</span></li>
-                    <li>
-                        <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a>
-                    </li>
-                </ul> 
+                
                 {% endif %}
             {% endif %}
 

@@ -187,6 +187,7 @@ def take_attendance(request):
     existing_attendance = None
     attendance_note = ''
     filter_submitted = False
+    valid_statuses = {choice[0] for choice in AttendanceRecord.STATUS_CHOICES}
 
     def _student_queryset():
         qs = StudentInfo.objects.filter(
@@ -219,11 +220,10 @@ def take_attendance(request):
                     attendance.note = note_value
                     attendance.save(update_fields=['note', 'updated_at'])
 
-                valid_status = {choice[0] for choice in AttendanceRecord.STATUS_CHOICES}
                 records = []
                 for student in student_list:
                     status = request.POST.get(f'status_{student.id}', AttendanceRecord.STATUS_PRESENT)
-                    if status not in valid_status:
+                    if status not in valid_statuses:
                         status = AttendanceRecord.STATUS_PRESENT
                     remark = request.POST.get(f'remark_{student.id}', '').strip() or None
                     records.append(AttendanceRecord(
@@ -286,6 +286,7 @@ def take_attendance(request):
             if existing_attendance:
                 status_map = {
                     record.student_id: record.status
+                    if record.status in valid_statuses else AttendanceRecord.STATUS_PRESENT
                     for record in existing_attendance.records.all()
                 }
                 remark_map = {
@@ -371,7 +372,6 @@ def view_update_attendance(request):
         attendance.summary_total = len(records)
         attendance.summary_present = sum(1 for record in records if record.status == AttendanceRecord.STATUS_PRESENT)
         attendance.summary_absent = sum(1 for record in records if record.status == AttendanceRecord.STATUS_ABSENT)
-        attendance.summary_late = sum(1 for record in records if record.status == AttendanceRecord.STATUS_LATE)
 
     context = {
         'classes': classes,

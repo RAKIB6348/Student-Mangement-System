@@ -1,19 +1,34 @@
 import json
 import secrets
 import string
+from datetime import datetime
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
+
+from account.models import User
+from academic.models import Class, Section, Session, Subject
+from student.models import StudentFeedback, StudentInfo, StudentLeave, StudentNotification
+from teacher.models import (
+    Attendance,
+    AttendanceRecord,
+    Feedback,
+    TeacherInfo,
+    TeacherLeave,
+    TeacherNotification,
+)
 
 from .models import AdminProfile
-from account.models import User
 
-from student.models import StudentInfo, StudentNotification, StudentFeedback, StudentLeave
-from teacher.models import TeacherInfo, TeacherNotification, TeacherLeave, Feedback
-from academic.models import Subject, Class
+
+def _parse_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _generate_admin_username():
@@ -173,6 +188,123 @@ def admin_home_page(request):
     }
 
     return render(request, 'Admin/home.html', context)
+
+
+@login_required
+def attendance_overview(request):
+    if request.user.user_type != 'Admin':
+        return HttpResponseForbidden('Only admins can view attendance data.')
+
+    classes = Class.objects.all().order_by('class_code')
+    sections = Section.objects.all().order_by('name')
+    sessions = Session.objects.all().order_by('-start_date')
+    subjects = Subject.objects.all().order_by('name')
+    teachers = TeacherInfo.objects.all().order_by('first_name', 'last_name')
+
+    filter_values = {
+        'klass': request.GET.get('klass', ''),
+        'section': request.GET.get('section', ''),
+        'session': request.GET.get('session', ''),
+        'subject': request.GET.get('subject', ''),
+        'teacher': request.GET.get('teacher', ''),
+        'date': request.GET.get('date', ''),
+    }
+
+    klass_id = _parse_int(filter_values['klass'])
+    section_id = _parse_int(filter_values['section'])
+    session_id = _parse_int(filter_values['session'])
+    subject_id = _parse_int(filter_values['subject'])
+    teacher_id = _parse_int(filter_values['teacher'])
+
+    attendances = (
+        Attendance.objects.select_related('teacher', 'klass', 'section', 'session', 'subject')
+        .prefetch_related('records__student')
+        .order_by('-date', '-created_at')
+    )
+
+    if klass_id:
+        attendances = attendances.filter(klass_id=klass_id)
+    if section_id:
+        attendances = attendances.filter(section_id=section_id)
+    if session_id:
+        attendances = attendances.filter(session_id=session_id)
+    if subject_id:
+        attendances = attendances.filter(subject_id=subject_id)
+    if teacher_id:
+        attendances = attendances.filter(teacher_id=teacher_id)
+
+    selected_date_value = filter_values['date']
+    if selected_date_value:
+        try:
+            selected_date = datetime.strptime(selected_date_value, "%Y-%m-%d").date()
+            attendances = attendances.filter(date=selected_date)
+        except ValueError:
+            messages.error(request, 'Invalid date filter. Showing results without the date filter.')
+            filter_values['date'] = ''
+
+    attendance_list = []
+    total_records = 0
+    total_present = 0
+    total_absent = 0
+
+    for attendance in attendances:
+        records = list(attendance.records.all())
+        attendance.summary_total = len(records)
+        attendance.summary_present = sum(
+            1 for record in records if record.status == AttendanceRecord.STATUS_PRESENT
+        )
+        attendance.summary_absent = sum(
+            1 for record in records if record.status == AttendanceRecord.STATUS_ABSENT
+        )
+        total_records += attendance.summary_total
+        total_present += attendance.summary_present
+        total_absent += attendance.summary_absent
+        attendance_list.append(attendance)
+
+    overall_summary = {
+        'sessions': len(attendance_list),
+        'records': total_records,
+        'present': total_present,
+        'absent': total_absent,
+    }
+
+    selected_attendance_id = _parse_int(request.GET.get('attendance_id'))
+    selected_attendance = None
+    selected_records = []
+    selected_summary = None
+
+    if selected_attendance_id:
+        selected_attendance = next(
+            (att for att in attendance_list if att.id == selected_attendance_id),
+            None
+        )
+        if selected_attendance:
+            selected_records = list(
+                selected_attendance.records.select_related('student', 'student__section')
+                .order_by('student__roll_no', 'student__first_name', 'student__last_name')
+            )
+            selected_summary = {
+                'total': selected_attendance.summary_total,
+                'present': selected_attendance.summary_present,
+                'absent': selected_attendance.summary_absent,
+            }
+        else:
+            messages.warning(request, 'The selected attendance entry was not found in the current filters.')
+
+    context = {
+        'classes': classes,
+        'sections': sections,
+        'sessions': sessions,
+        'subjects': subjects,
+        'teachers': teachers,
+        'attendances': attendance_list,
+        'filters': filter_values,
+        'overall_summary': overall_summary,
+        'selected_attendance': selected_attendance,
+        'selected_records': selected_records,
+        'selected_summary': selected_summary,
+    }
+    return render(request, 'Admin/attendance_overview.html', context)
 
 
 def admin_edit(request, id):

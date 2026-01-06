@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="page-title mb-2">Attendance Overview</h3>
+                <ul class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_home_page' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Attendance</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white border-0">
+            <h5 class="mb-0">Filter Records</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="form-group col-md-2">
+                    <label class="form-label">Class</label>
+                    <select name="klass" class="form-control">
+                        <option value="">All</option>
+                        {% for klass in classes %}
+                            <option value="{{ klass.id }}" {% if filters.klass == klass.id|stringformat:"s" %}selected{% endif %}>
+                                {{ klass.name }} ({{ klass.class_code }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="form-label">Section</label>
+                    <select name="section" class="form-control">
+                        <option value="">All</option>
+                        {% for sec in sections %}
+                            <option value="{{ sec.id }}" {% if filters.section == sec.id|stringformat:"s" %}selected{% endif %}>
+                                {{ sec.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="form-label">Session</label>
+                    <select name="session" class="form-control">
+                        <option value="">All</option>
+                        {% for sess in sessions %}
+                            <option value="{{ sess.id }}" {% if filters.session == sess.id|stringformat:"s" %}selected{% endif %}>
+                                {{ sess.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="form-label">Subject</label>
+                    <select name="subject" class="form-control">
+                        <option value="">All</option>
+                        {% for subj in subjects %}
+                            <option value="{{ subj.id }}" {% if filters.subject == subj.id|stringformat:"s" %}selected{% endif %}>
+                                {{ subj.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="form-label">Teacher</label>
+                    <select name="teacher" class="form-control">
+                        <option value="">All</option>
+                        {% for teacher in teachers %}
+                            <option value="{{ teacher.id }}" {% if filters.teacher == teacher.id|stringformat:"s" %}selected{% endif %}>
+                                {{ teacher.first_name|default:"" }} {{ teacher.last_name|default:"" }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-control" name="date" value="{{ filters.date }}">
+                </div>
+                <div class="form-group col-md-12 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary mr-2">
+                        <i class="fas fa-filter mr-1"></i>Apply Filters
+                    </button>
+                    <a href="{% url 'admin_attendance' %}" class="btn btn-light">
+                        <i class="fas fa-undo mr-1"></i>Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Attendance Sessions</p>
+                    <h3 class="mb-0">{{ overall_summary.sessions }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Total Records</p>
+                    <h3 class="mb-0">{{ overall_summary.records }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Present</p>
+                    <h3 class="text-success mb-0">{{ overall_summary.present }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Absent</p>
+                    <h3 class="text-danger mb-0">{{ overall_summary.absent }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Attendance Sessions</h5>
+            <small class="text-muted">Select a record to view detailed student-wise attendance.</small>
+        </div>
+        <div class="card-body">
+            {% if attendances %}
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Class</th>
+                                <th>Session</th>
+                                <th>Subject</th>
+                                <th>Teacher</th>
+                                <th>Total</th>
+                                <th>Present</th>
+                                <th>Absent</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attendance in attendances %}
+                                <tr {% if selected_attendance and selected_attendance.id == attendance.id %}class="table-active"{% endif %}>
+                                    <td>{{ attendance.date|date:"d M Y" }}</td>
+                                    <td>
+                                        {{ attendance.klass.name|default:"—" }}
+                                        {% if attendance.section %}
+                                            <span class="badge badge-light ml-1">{{ attendance.section.name }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ attendance.session.name|default:"—" }}</td>
+                                    <td>{{ attendance.subject.name|default:"—" }}</td>
+                                    <td>
+                                        {% if attendance.teacher %}
+                                            {{ attendance.teacher.first_name|default:"" }} {{ attendance.teacher.last_name|default:"" }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ attendance.summary_total }}</td>
+                                    <td class="text-success"><strong>{{ attendance.summary_present }}</strong></td>
+                                    <td class="text-danger"><strong>{{ attendance.summary_absent }}</strong></td>
+                                    <td>
+                                        <form method="get" class="d-inline">
+                                            <input type="hidden" name="klass" value="{{ filters.klass }}">
+                                            <input type="hidden" name="section" value="{{ filters.section }}">
+                                            <input type="hidden" name="session" value="{{ filters.session }}">
+                                            <input type="hidden" name="subject" value="{{ filters.subject }}">
+                                            <input type="hidden" name="teacher" value="{{ filters.teacher }}">
+                                            <input type="hidden" name="date" value="{{ filters.date }}">
+                                            <input type="hidden" name="attendance_id" value="{{ attendance.id }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye mr-1"></i>View Detail
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-clipboard-list fa-2x mb-3"></i>
+                    <p class="mb-0">No attendance sessions match the selected filters.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if selected_attendance %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white border-0">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                    <h5 class="mb-2 mb-md-0">
+                        Attendance Detail — {{ selected_attendance.date|date:"d M Y" }}
+                    </h5>
+                    <div class="text-muted">
+                        <strong>Summary:</strong>
+                        <span class="text-success ml-2">Present: {{ selected_summary.present }}</span>
+                        <span class="text-danger ml-2">Absent: {{ selected_summary.absent }}</span>
+                        <span class="ml-2">Total: {{ selected_summary.total }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <p class="mb-1 text-muted">Class & Section</p>
+                        <h6 class="mb-0">
+                            {{ selected_attendance.klass.name|default:"—" }}
+                            {% if selected_attendance.section %}
+                                <span class="badge badge-light ml-1">{{ selected_attendance.section.name }}</span>
+                            {% endif %}
+                        </h6>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mb-1 text-muted">Session</p>
+                        <h6 class="mb-0">{{ selected_attendance.session.name|default:"—" }}</h6>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mb-1 text-muted">Subject</p>
+                        <h6 class="mb-0">{{ selected_attendance.subject.name|default:"—" }}</h6>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mb-1 text-muted">Teacher</p>
+                        <h6 class="mb-0">
+                            {% if selected_attendance.teacher %}
+                                {{ selected_attendance.teacher.first_name|default:"" }} {{ selected_attendance.teacher.last_name|default:"" }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </h6>
+                    </div>
+                </div>
+                {% if selected_attendance.note %}
+                    <div class="alert alert-info mb-3">
+                        <strong>Teacher Note:</strong> {{ selected_attendance.note }}
+                    </div>
+                {% endif %}
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Student</th>
+                                <th>Status</th>
+                                <th>Remark</th>
+                                <th>Marked At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in selected_records %}
+                                <tr>
+                                    <td>{{ record.student.roll_no|default:"—" }}</td>
+                                    <td>
+                                        <strong>{{ record.student.first_name }} {{ record.student.last_name }}</strong><br>
+                                        <small class="text-muted">{{ record.student.student_user_id|default:"—" }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if record.status == 'Present' %}badge-success{% else %}badge-danger{% endif %}">
+                                            {{ record.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ record.remark|default:"—" }}</td>
+                                    <td>{{ record.marked_at|date:"d M Y h:i A" }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">No records available.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% elif attendances %}
+        <div class="card shadow-sm">
+            <div class="card-body text-center text-muted py-4">
+                <i class="fas fa-mouse-pointer fa-2x mb-3"></i>
+                <p class="mb-0">Select an attendance session above to view student-wise details.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

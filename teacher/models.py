@@ -199,12 +199,10 @@ class Attendance(models.Model):
 class AttendanceRecord(models.Model):
     STATUS_PRESENT = "Present"
     STATUS_ABSENT = "Absent"
-    STATUS_LATE = "Late"
 
     STATUS_CHOICES = [
         (STATUS_PRESENT, "Present"),
         (STATUS_ABSENT, "Absent"),
-        (STATUS_LATE, "Late"),
     ]
 
     attendance = models.ForeignKey(

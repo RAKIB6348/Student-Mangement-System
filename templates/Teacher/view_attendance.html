@@ -81,7 +81,6 @@
                             <th>Total</th>
                             <th>Present</th>
                             <th>Absent</th>
-                            <th>Late</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -100,7 +99,6 @@
                             <td>{{ attendance.summary_total }}</td>
                             <td class="text-success"><strong>{{ attendance.summary_present }}</strong></td>
                             <td class="text-danger"><strong>{{ attendance.summary_absent }}</strong></td>
-                            <td class="text-warning"><strong>{{ attendance.summary_late }}</strong></td>
                             <td>
                                 {% if attendance.klass and attendance.session and attendance.subject %}
                                 <a class="btn btn-sm btn-outline-primary" href="{% url 'take_attendance' %}?klass={{ attendance.klass.id }}{% if attendance.section %}&section={{ attendance.section.id }}{% endif %}&session={{ attendance.session.id }}&subject={{ attendance.subject.id }}&date={{ attendance.date|date:'Y-m-d' }}">

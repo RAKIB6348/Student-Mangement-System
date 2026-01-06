@@ -1,13 +1,17 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.http import HttpResponseForbidden
-from .models import StudentInfo, StudentNotification, StudentFeedback, StudentLeave
-from account.models import User
-from academic.models import Session, Class, Section
 import secrets
 import string
+from datetime import datetime
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
+
+from account.models import User
+from academic.models import Session, Class, Section
+from teacher.models import AttendanceRecord
+
+from .models import StudentInfo, StudentNotification, StudentFeedback, StudentLeave
 from .forms import StudentFeedbackForm, StudentLeaveForm
 
 # Create your views here.
@@ -166,6 +170,104 @@ def student_create(request):
 def student_dashboard(request):
 
     return render(request, 'Student/student_dashboard.html')
+
+
+@login_required
+def student_attendance(request):
+    if request.user.user_type != 'Student':
+        return HttpResponseForbidden('Only students can view this page.')
+
+    student = get_object_or_404(StudentInfo, user=request.user)
+
+    base_records = AttendanceRecord.objects.filter(student=student)
+    subject_choices = base_records.filter(
+        attendance__subject__isnull=False
+    ).values_list('attendance__subject_id', 'attendance__subject__name').distinct()
+    subject_options = sorted(
+        [
+            {'id': subject_id, 'name': subject_name}
+            for subject_id, subject_name in subject_choices
+            if subject_id is not None
+        ],
+        key=lambda item: item['name'] or ''
+    )
+
+    records = base_records.select_related(
+        'attendance__teacher',
+        'attendance__klass',
+        'attendance__section',
+        'attendance__session',
+        'attendance__subject',
+    )
+
+    start_date_value = request.GET.get('start_date', '')
+    end_date_value = request.GET.get('end_date', '')
+    subject_value = request.GET.get('subject', '')
+    status_value = request.GET.get('status', '')
+
+    def _parse_date(value):
+        try:
+            return datetime.strptime(value, '%Y-%m-%d').date()
+        except (TypeError, ValueError):
+            return None
+
+    start_date_obj = _parse_date(start_date_value) if start_date_value else None
+    if start_date_value and not start_date_obj:
+        messages.error(request, 'Invalid start date. Ignoring this filter.')
+        start_date_value = ''
+    if start_date_obj:
+        records = records.filter(attendance__date__gte=start_date_obj)
+
+    end_date_obj = _parse_date(end_date_value) if end_date_value else None
+    if end_date_value and not end_date_obj:
+        messages.error(request, 'Invalid end date. Ignoring this filter.')
+        end_date_value = ''
+    if end_date_obj:
+        records = records.filter(attendance__date__lte=end_date_obj)
+
+    subject_id = None
+    if subject_value:
+        try:
+            subject_id = int(subject_value)
+        except (TypeError, ValueError):
+            messages.error(request, 'Invalid subject filter. Showing all subjects.')
+            subject_value = ''
+        else:
+            records = records.filter(attendance__subject_id=subject_id)
+
+    valid_statuses = {choice[0] for choice in AttendanceRecord.STATUS_CHOICES}
+    if status_value and status_value not in valid_statuses:
+        messages.error(request, 'Invalid status filter. Showing all records.')
+        status_value = ''
+    elif status_value:
+        records = records.filter(status=status_value)
+
+    record_list = list(records.order_by('-attendance__date', '-attendance__created_at'))
+
+    total_classes = len(record_list)
+    present_count = sum(1 for rec in record_list if rec.status == AttendanceRecord.STATUS_PRESENT)
+    absent_count = sum(1 for rec in record_list if rec.status == AttendanceRecord.STATUS_ABSENT)
+    attendance_percentage = round((present_count / total_classes) * 100, 2) if total_classes else 0.0
+
+    context = {
+        'student': student,
+        'records': record_list,
+        'summary': {
+            'total': total_classes,
+            'present': present_count,
+            'absent': absent_count,
+            'percentage': attendance_percentage,
+        },
+        'filters': {
+            'start_date': start_date_value,
+            'end_date': end_date_value,
+            'subject': subject_value,
+            'status': status_value,
+        },
+        'subject_options': subject_options,
+        'status_choices': AttendanceRecord.STATUS_CHOICES,
+    }
+    return render(request, 'Student/attendance.html', context)
 
 
 def student_edit(request, id):

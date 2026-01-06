@@ -10,6 +10,7 @@ urlpatterns = [
     path('admin-edit/<int:id>/', admin_edit, name='admin_edit'),
     path('admin-delete/<int:id>/', admin_delete, name='admin_delete'),
 
+    path('attendance/', attendance_overview, name='admin_attendance'),
     path('send-teacher-notification/', send_teacher_notification, name='send_teacher_notification'),
     path('view-teacher-notifications/', view_teacher_notifications, name='view_teacher_notifications'),
     path('send-student-notification/', send_student_notification, name='send_student_notification'),
